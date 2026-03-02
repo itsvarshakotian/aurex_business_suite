@@ -2,7 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../dashboard/dashboard_screen.dart';
+import '../orders/orders_screen.dart';
+import '../reports/reports_screen.dart';
 import 'main_navigation_controller.dart';
+import '../inventory/inventory_screen.dart';
+
 
 class MainNavigationScreen extends StatelessWidget {
   const MainNavigationScreen({super.key});
@@ -11,11 +15,13 @@ class MainNavigationScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = Get.find<MainNavigationController>();
 
-    final pages = [
+    List<Widget> pages = [
+      
       const DashboardScreen(),
-      const Placeholder(),
-      const Placeholder(),
-      const Placeholder(),
+      const InventoryScreen(),
+      const OrdersScreen(),
+      const ReportsScreen(),
+      
     ];
 
     return Scaffold(

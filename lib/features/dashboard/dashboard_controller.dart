@@ -5,6 +5,8 @@ class DashboardController extends GetxController {
   final RxDouble revenue = 0.0.obs;
   final RxInt activeUsers = 0.obs;
   final RxInt pendingTasks = 0.obs;
+  final RxString userRole = "Admin".obs;
+  final List<double> weeklySales = [20, 35, 28, 45, 60, 55, 70];
 
   @override
   void onInit() {
