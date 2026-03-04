@@ -10,8 +10,7 @@ import '../../data/models/product_model.dart';
 class DashboardController extends GetxController {
   final AuthService _auth = Get.find<AuthService>();
   final OrdersRepository _ordersRepo = OrdersRepository();
-  final InventoryRepository _inventoryRepo =
-      InventoryRepository();
+  final InventoryRepository _inventoryRepo = InventoryRepository();
 
   final RxString userRole = "".obs;
 
@@ -74,17 +73,18 @@ class DashboardController extends GetxController {
       cachedProducts.assignAll(products);
 
       /// 🔹 MONTHLY REVENUE CALCULATION
-      final Map<String, double> revenueMap = {};
+     final Map<String, double> revenueMap = {};
 
-      for (var order in orders) {
-        final String month =
-    "${order.date.year}-${order.date.month.toString().padLeft(2, '0')}"; // yyyy-MM
+     for (int i = 0; i < orders.length; i++) {
 
-        revenueMap[month] =
-            (revenueMap[month] ?? 0) + order.total;
-      }
+     final order = orders[i];
 
-      monthlyRevenue.assignAll(revenueMap);
+     final key = "Order ${i + 1}";
+
+     revenueMap[key] = order.total;
+    }
+
+     monthlyRevenue.assignAll(revenueMap);
 
       /// 🔹 ORDER STATUS COUNT
       final Map<String, int> statusMap = {};

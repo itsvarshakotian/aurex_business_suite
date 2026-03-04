@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../core/services/auth_service.dart';
 import '../../data/repositories/auth_repository.dart';
 import '../../core/services/storage_service.dart';
 import '../../core/resources/constants.dart';
@@ -62,8 +63,9 @@ class LoginController extends GetxController {
         AppConstants.roleKey,
         selectedRole.value,
       );
+      Get.find<AuthService>().role.value = selectedRole.value;
 
-      log("Role saved in storage: ${selectedRole.value}");
+      log("Role saved: ${selectedRole.value}");
 
       log("Navigating to Dashboard");
 

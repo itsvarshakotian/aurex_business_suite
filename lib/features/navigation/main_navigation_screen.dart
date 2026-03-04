@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../core/services/auth_service.dart';
 import '../dashboard/dashboard_screen.dart';
 import '../inventory/inventory_screen.dart';
 import '../orders/orders_screen.dart';
@@ -15,22 +16,65 @@ class MainNavigationScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = Get.find<MainNavigationController>();
 
-    final pages = [
-      const DashboardScreen(),
-      const InventoryScreen(),
-      const OrdersScreen(),
-      const ReportsScreen(),
-      const ProfileScreen(),
-    ];
+    final auth = Get.find<AuthService>();
 
-    final icons = [
-      Icons.dashboard_outlined,
-      Icons.inventory_2_outlined,
-      Icons.receipt_long_outlined,
-      Icons.bar_chart_outlined,
-      Icons.person_outline,
-    ];
+List<Widget> pages;
 
+if (auth.isAdmin) {
+  pages = const [
+    DashboardScreen(),
+    InventoryScreen(),
+    OrdersScreen(),
+    ReportsScreen(),
+    ProfileScreen(),
+  ];
+} 
+else if (auth.isManager) {
+  pages = const [
+    DashboardScreen(),
+    OrdersScreen(),
+    ReportsScreen(),
+    ProfileScreen(),
+  ];
+} 
+else {
+  pages = const [
+    DashboardScreen(),
+    OrdersScreen(),
+    ProfileScreen(),
+  ];
+}
+
+List<IconData> icons;
+
+if (auth.isAdmin) {
+  icons = [
+    Icons.dashboard_outlined,
+    Icons.inventory_2_outlined,
+    Icons.receipt_long_outlined,
+    Icons.bar_chart_outlined,
+    Icons.person_outline,
+  ];
+} 
+else if (auth.isManager) {
+  icons = [
+    Icons.dashboard_outlined,
+    Icons.receipt_long_outlined,
+    Icons.bar_chart_outlined,
+    Icons.person_outline,
+  ];
+} 
+else {
+  icons = [
+    Icons.dashboard_outlined,
+    Icons.receipt_long_outlined,
+    Icons.person_outline,
+  ];
+}
+
+if (controller.currentIndex.value >= pages.length) {
+  controller.currentIndex.value = 0;
+}
     return Scaffold(
       body: Obx(() => pages[controller.currentIndex.value]),
 

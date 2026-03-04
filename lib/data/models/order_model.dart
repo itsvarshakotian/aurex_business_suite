@@ -4,6 +4,7 @@ class OrderProductModel {
   final double price;
   final int quantity;
   final double total;
+  final String thumbnail;
 
   OrderProductModel({
     required this.id,
@@ -11,15 +12,17 @@ class OrderProductModel {
     required this.price,
     required this.quantity,
     required this.total,
+    required this.thumbnail,
   });
 
   factory OrderProductModel.fromJson(Map<String, dynamic> json) {
     return OrderProductModel(
       id: json['id'],
-      title: json['title'],
+      title: json['title'] ?? "",
       price: (json['price'] as num).toDouble(),
-      quantity: json['quantity'],
+      quantity: json['quantity'] ?? 0,
       total: (json['total'] as num).toDouble(),
+      thumbnail: json['thumbnail']?.toString() ?? "",
     );
   }
 }
