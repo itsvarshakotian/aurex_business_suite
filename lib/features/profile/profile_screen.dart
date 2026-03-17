@@ -10,7 +10,7 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(ProfileController());
+    final controller = Get.find<ProfileController>();
 
     return SafeArea(
       child: Padding(
@@ -77,9 +77,7 @@ class ProfileScreen extends StatelessWidget {
                         foregroundColor:
                             Colors.black,
                         padding:
-                            const EdgeInsets
-                                .symmetric(
-                                    vertical: 16),
+                            const EdgeInsets.symmetric(vertical: 16),
                         shape:
                             RoundedRectangleBorder(
                           borderRadius:
@@ -90,8 +88,7 @@ class ProfileScreen extends StatelessWidget {
                       ),
                       onPressed:
                           controller.logout,
-                      child: const Text(
-                          "Logout"),
+                      child: const Text("Logout"),
                     ),
                   ),
                 ],

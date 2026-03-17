@@ -10,7 +10,7 @@ class InventoryScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(InventoryController());
+    final controller = Get.find<InventoryController>();
     final auth = Get.find<AuthService>();
 
     return SafeArea(

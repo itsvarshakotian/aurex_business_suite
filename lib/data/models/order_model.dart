@@ -55,8 +55,13 @@ class OrderModel {
       products: (json['products'] as List)
           .map((e) => OrderProductModel.fromJson(e))
           .toList(),
-      date: DateTime.now(), 
-      status: "Completed", 
-    );
-  }
+      //DATE
+     date: DateTime.now().subtract(
+        Duration(days: json['id'] % 30),
+      ),
+
+    //STATUS
+    status: json['status'] ?? "Completed",
+  );
+}
 }

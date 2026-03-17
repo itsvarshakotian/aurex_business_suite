@@ -11,7 +11,7 @@ class ReportsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(ReportsController());
+    final controller = Get.find<ReportsController>();
 
     return SafeArea(
       child: SingleChildScrollView(

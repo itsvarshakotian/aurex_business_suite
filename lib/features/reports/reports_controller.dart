@@ -82,25 +82,29 @@ class ReportsController extends GetxController {
     
   }
 
-  void generateChart(List<OrderModel> orders) {
+ void generateChart(List<OrderModel> orders) {
   final Map<int, double> dayRevenue = {};
 
+  // group revenue by day
   for (var order in orders) {
     final day = order.date.day;
     dayRevenue[day] =
         (dayRevenue[day] ?? 0) + order.total;
   }
 
-  final values = dayRevenue.values.toList();
+  // last 7 days chart
+  final List<double> chartValues = [];
 
-  if (values.isEmpty) {
-    revenueChart.assignAll([0, 0, 0, 0, 0, 0, 0]);
-  } else if (values.length == 1) {
-    revenueChart.assignAll([0, values.first, 0]);
-  } else {
-    revenueChart.assignAll(values);
+  for (int i = 6; i >= 0; i--) {
+    final day = DateTime.now()
+        .subtract(Duration(days: i))
+        .day;
+
+    chartValues.add(dayRevenue[day] ?? 0);
   }
 
-  log("Chart Data: $revenueChart");
+  revenueChart.assignAll(chartValues);
+
+  log("Chart Data (7 Days): $revenueChart");
 }
 }

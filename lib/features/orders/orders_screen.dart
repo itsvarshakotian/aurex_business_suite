@@ -14,7 +14,7 @@ class OrdersScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    final controller = Get.put(OrdersController());
+    final controller = Get.find<OrdersController>();
     final auth = Get.find<AuthService>();
 
     return SafeArea(
@@ -86,14 +86,35 @@ class OrdersScreen extends StatelessWidget {
                     );
                   }
 
-                  if (controller.errorMessage.value.isNotEmpty) {
-                    return Center(
-                      child: Text(
-                        controller.errorMessage.value,
-                        style: const TextStyle(color: Colors.red),
-                      ),
-                    );
-                  }
+               if (controller.errorMessage.value.isNotEmpty) {
+  return Center(
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+
+        const Icon(
+          Icons.wifi_off,
+          size: 50,
+          color: Colors.grey,
+        ),
+
+        const SizedBox(height: 12),
+
+        Text(
+          controller.errorMessage.value,
+          style: const TextStyle(color: Colors.grey),
+        ),
+
+        const SizedBox(height: 16),
+
+        ElevatedButton(
+          onPressed: controller.fetchOrders,
+          child: const Text("Retry"),
+        ),
+      ],
+    ),
+  );
+}
 
                   if (controller.orders.isEmpty) {
                     return const Padding(

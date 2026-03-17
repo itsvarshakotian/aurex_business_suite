@@ -10,6 +10,7 @@ import 'core/services/storage_service.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await StorageService.init();
+  // Initialize Auth Service (GetX)
   await Get.putAsync(() => AuthService().init());
   runApp(const AurexApp());
 }
@@ -27,10 +28,122 @@ class AurexApp extends StatelessWidget {
       theme: ThemeData(
         useMaterial3: true,
         brightness: Brightness.dark,
-        scaffoldBackgroundColor: ColorResources.background,
+
+        //Background
+        scaffoldBackgroundColor: ColorResources.primaryBackground,
+
+        // Color
+        colorScheme: const ColorScheme.dark(
+          primary: ColorResources.goldPrimary,
+          secondary: ColorResources.accentPurple,
+          surface: ColorResources.secondaryBackground,
+          error: ColorResources.error,
+        ),
+
+        // APP BAR
+        appBarTheme: const AppBarTheme(
+          backgroundColor: ColorResources.primaryBackground,
+          elevation: 0,
+          centerTitle: true,
+          titleTextStyle: TextStyle(
+            color: ColorResources.textPrimary,
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+          ),
+          iconTheme: IconThemeData(
+            color: ColorResources.textPrimary,
+          ),
+        ),
+
+        //  TEXT
+        textTheme: const TextTheme(
+          titleLarge: TextStyle(
+            color: ColorResources.textPrimary,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+          titleMedium: TextStyle(
+            color: ColorResources.textPrimary,
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+          ),
+          bodyLarge: TextStyle(
+            color: ColorResources.textSecondary,
+            fontSize: 14,
+          ),
+          bodyMedium: TextStyle(
+            color: ColorResources.textSecondary,
+            fontSize: 13,
+          ),
+        ),
+
+        //  CARD
+     cardTheme: CardThemeData(
+  color: ColorResources.secondaryBackground,
+  elevation: 0,
+  shape: RoundedRectangleBorder(
+    borderRadius: BorderRadius.circular(12),
+    side: const BorderSide(
+      color: ColorResources.borderLight,
+    ),
+  ),
+),
+
+        // INPUT FIELD 
+        inputDecorationTheme: InputDecorationTheme(
+          filled: true,
+          fillColor: ColorResources.surface,
+
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 14,
+          ),
+
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(
+              color: ColorResources.borderLight,
+            ),
+          ),
+
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(
+              color: ColorResources.borderLight,
+            ),
+          ),
+
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(
+              color: ColorResources.borderActive,
+              width: 1.5,
+            ),
+          ),
+
+          hintStyle: const TextStyle(
+            color: ColorResources.textTertiary,
+          ),
+        ),
+
+        //  BUTTON 
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: ColorResources.goldPrimary,
+            foregroundColor: Colors.black,
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            padding: const EdgeInsets.symmetric(vertical: 14),
+          ),
+        ),
+
+        //  DIVIDER 
+        dividerColor: ColorResources.borderLight,
       ),
 
-      // Initial Route
+      // ROUTING 
       initialRoute: AppRoutes.splash,
 
       // GetX Routes

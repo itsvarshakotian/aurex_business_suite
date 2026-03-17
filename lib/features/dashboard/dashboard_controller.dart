@@ -8,7 +8,7 @@ import '../../data/models/order_model.dart';
 import '../../data/models/product_model.dart';
 
 class DashboardController extends GetxController {
-  final AuthService _auth = Get.find<AuthService>();
+  final AuthService auth = Get.find<AuthService>();
   final OrdersRepository _ordersRepo = OrdersRepository();
   final InventoryRepository _inventoryRepo = InventoryRepository();
 
@@ -33,13 +33,18 @@ class DashboardController extends GetxController {
 
   final RxList<ProductModel> cachedProducts = <ProductModel>[].obs;
 
-  @override
-  void onInit() {
-    super.onInit();
-    userRole.value = _auth.role.value;
-    loadDashboard();
-  }
+ bool loaded = false;
 
+@override
+void onInit() {
+  super.onInit();
+  userRole.value = auth.role.value; 
+
+  if (!loaded) {
+    loadDashboard();
+    loaded = true;
+  }
+}
   Future<void> loadDashboard() async {
     log("Monthly Revenue: $monthlyRevenue");
     log("Status Count: $orderStatusCount");
@@ -71,18 +76,26 @@ class DashboardController extends GetxController {
       cachedProducts.assignAll(products);
 
       /// 🔹 MONTHLY REVENUE CALCULATION
-     final Map<String, double> revenueMap = {};
+    final Map<int, double> dayRevenue = {};
 
-     for (int i = 0; i < orders.length; i++) {
+for (var order in orders) {
+  final day = order.date.day;
 
-     final order = orders[i];
+  dayRevenue[day] =
+      (dayRevenue[day] ?? 0) + order.total;
+}
 
-     final key = "Order ${i + 1}";
+/// last 7 days
+final Map<String, double> finalMap = {};
 
-     revenueMap[key] = order.total;
-    }
+for (int i = 6; i >= 0; i--) {
+  final date = DateTime.now().subtract(Duration(days: i));
+  final key = "${date.day}/${date.month}";
 
-     monthlyRevenue.assignAll(revenueMap);
+  finalMap[key] = dayRevenue[date.day] ?? 0;
+}
+
+monthlyRevenue.assignAll(finalMap);
 
       /// 🔹 ORDER STATUS COUNT
       final Map<String, int> statusMap = {};

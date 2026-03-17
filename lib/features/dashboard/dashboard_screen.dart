@@ -11,12 +11,10 @@ class DashboardScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
-    final controller = Get.put(DashboardController());
+    final controller = Get.find<DashboardController>();
 
     return SafeArea(
       child: Obx(() {
-
         if (controller.userRole.value == "Admin") {
           return adminDashboard(controller);
         }
@@ -26,7 +24,6 @@ class DashboardScreen extends StatelessWidget {
         }
 
         return staffDashboard(controller);
-
       }),
     );
   }
@@ -90,6 +87,13 @@ class DashboardScreen extends StatelessWidget {
               ],
             ),
 
+            const SizedBox(height: 30),
+
+            sectionTitle("Revenue (Last 7 Days)"),
+
+            const SizedBox(height: 12),
+
+            revenueChart(controller),
           ],
         ),
       ),
@@ -159,7 +163,7 @@ class DashboardScreen extends StatelessWidget {
 
             const SizedBox(height: 30),
 
-            sectionTitle("Monthly Revenue"),
+            sectionTitle("Revenue (Last 7 Days)"),
 
             const SizedBox(height: 12),
 
@@ -387,7 +391,8 @@ class DashboardScreen extends StatelessWidget {
 
     final values = controller.monthlyRevenue.values.toList();
 
-    if (values.isEmpty) {
+    // FIXED EMPTY CHECK
+    if (values.isEmpty || values.every((v) => v == 0)) {
       return containerCard(
         const Center(
           child: Text(

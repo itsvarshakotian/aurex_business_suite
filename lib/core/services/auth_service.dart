@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import '../../app/routes/app_routes.dart';
 import 'storage_service.dart';
 import '../resources/constants.dart';
 
@@ -22,5 +23,14 @@ class AuthService extends GetxService {
   bool get isManager => role.value == "Manager";
   bool get isStaff => role.value == "Staff";
 
-  void logout() {}
+Future<void> logout() async {
+  final storage = StorageService();
+
+  await storage.removeData(AppConstants.tokenKey);
+  await storage.removeData(AppConstants.roleKey);
+
+  role.value = "Staff";
+
+  Get.offAllNamed(AppRoutes.login);
+}
 }

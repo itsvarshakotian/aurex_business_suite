@@ -12,12 +12,13 @@ class SplashScreen extends StatelessWidget {
     final controller = Get.find<SplashController>();
 
     return Scaffold(
+      backgroundColor: ColorResources.primaryBackground,
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              ColorResources.background,
-              Color(0xFF121826),
+              ColorResources.primaryBackground,
+              ColorResources.secondaryBackground,
             ],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
@@ -39,17 +40,14 @@ class SplashScreen extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+
+                /// LOGO
                 Container(
                   height: 120,
                   width: 120,
                   decoration: const BoxDecoration(
                     shape: BoxShape.circle,
-                    gradient: LinearGradient(
-                      colors: [
-                        ColorResources.goldStart,
-                        ColorResources.goldEnd,
-                      ],
-                    ),
+                    gradient: ColorResources.goldGradient,
                   ),
                   child: const Center(
                     child: Text(
@@ -63,6 +61,8 @@ class SplashScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 30),
+
+                // TITLE
                 Text(
                   "Aurex Business Suite",
                   style: GoogleFonts.poppins(
@@ -72,6 +72,8 @@ class SplashScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 8),
+
+                //SUBTITLE
                 Text(
                   "Business Control. Simplified.",
                   style: GoogleFonts.poppins(

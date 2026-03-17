@@ -7,6 +7,7 @@ import '../../data/repositories/auth_repository.dart';
 import '../../core/services/storage_service.dart';
 import '../../core/resources/constants.dart';
 import '../../app/routes/app_routes.dart';
+import '../../helper/helper.dart';
 
 class LoginController extends GetxController {
   final AuthRepository _repository = AuthRepository();
@@ -31,11 +32,7 @@ class LoginController extends GetxController {
 
       log("Validation failed: username or password empty");
 
-      Get.snackbar(
-        "Validation Error",
-        "Username and password are required",
-        snackPosition: SnackPosition.BOTTOM,
-      );
+      SnackbarHelper.showError("Username and password are required");
       return;
     }
 
@@ -80,7 +77,6 @@ class LoginController extends GetxController {
       Get.snackbar(
         "Login Failed",
         e.toString().replaceAll("Exception: ", ""),
-        snackPosition: SnackPosition.BOTTOM,
       );
 
     } finally {
