@@ -7,23 +7,31 @@ import '../models/order_model.dart';
 class OrdersRepository {
   final Dio dio = DioService().dio;
 
-  Future<List<OrderModel>> fetchOrders() async {
-    try {
-      final response =
-          await dio.get(UrlResources.carts);
+  Future<List<OrderModel>> fetchOrders({
+  int limit = 10,
+  int skip = 0,
+}) async {
+  try {
+    final response = await Dio().get(
+      "https://dummyjson.com/carts",
+      queryParameters: {
+        "limit": limit,
+        "skip": skip,
+      },
+    );
 
-      final List carts =
-          response.data["carts"];
+    if (response.statusCode == 200) {
+      final List carts = response.data['carts'];
 
       return carts
           .map((e) => OrderModel.fromJson(e))
           .toList();
-    } on DioException catch (e) {
-      throw Exception(
-        e.response?.data["message"] ??
-            "Failed to load orders",
-      );
+    } else {
+      throw Exception("Status code: ${response.statusCode}");
     }
+  } catch (e) {
+    throw Exception("Failed to load orders: $e");
+  }
   }
   Future<OrderModel> createOrder() async {
   try {

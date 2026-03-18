@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:get/get.dart';
+import '../../core/utils/connectivity_service.dart';
 import '../../data/repositories/orders_repository.dart';
 import '../../data/repositories/inventory_repository.dart';
 import '../../data/models/order_model.dart';
@@ -12,6 +13,7 @@ class ReportsController extends GetxController {
 
   final RxString selectedFilter = "This Week".obs;
   final RxBool isLoading = false.obs;
+  final RxBool noInternet = false.obs;
 
   final RxDouble totalRevenue = 0.0.obs;
   final RxInt totalOrders = 0.obs;
@@ -36,13 +38,32 @@ class ReportsController extends GetxController {
   Future<void> loadReports() async {
     try {
       isLoading.value = true;
+      noInternet.value = false;
 
+      log("Reports Refresh");
+
+      // RESET OLD DATA
+      totalRevenue.value = 0;
+      totalOrders.value = 0;
+      totalProducts.value = 0;
+      revenueChart.clear();
+
+      // INTERNET CHECK
+      final hasInternet = await ConnectivityService().hasInternet();
+
+      if (!hasInternet) {
+        noInternet.value = true;
+        return;
+      }
+
+      // FETCH
       allOrders = await ordersRepo.fetchOrders();
       allProducts = await inventoryRepo.fetchProducts();
 
       applyFilter();
     } catch (e) {
       log("Reports error: $e");
+      noInternet.value = true;
     } finally {
       isLoading.value = false;
     }

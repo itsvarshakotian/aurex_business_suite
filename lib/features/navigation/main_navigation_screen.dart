@@ -13,108 +13,117 @@ class MainNavigationScreen extends StatelessWidget {
   const MainNavigationScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final controller = Get.find<MainNavigationController>();
+Widget build(BuildContext context) {
 
-    final auth = Get.find<AuthService>();
+  final controller = Get.find<MainNavigationController>();
+  final auth = Get.find<AuthService>();
 
-List<Widget> pages;
+  return Obx(() {
 
-if (auth.isAdmin) {
-  pages = const [
-    DashboardScreen(),
-    InventoryScreen(),
-    OrdersScreen(),
-    ReportsScreen(),
-    ProfileScreen(),
-  ];
-} 
-else if (auth.isManager) {
-  pages = const [
-    DashboardScreen(),
-    OrdersScreen(),
-    ReportsScreen(),
-    ProfileScreen(),
-  ];
-} 
-else {
-  pages = const [
-    DashboardScreen(),
-    OrdersScreen(),
-    ProfileScreen(),
-  ];
-}
+    /// 🔥 NOW ROLE IS REACTIVE
+    List<Widget> pages;
+    List<IconData> icons;
 
-List<IconData> icons;
+    if (auth.isAdmin) {
+      pages = const [
+        DashboardScreen(),
+        InventoryScreen(),
+        OrdersScreen(),
+        ReportsScreen(),
+        ProfileScreen(),
+      ];
 
-if (auth.isAdmin) {
-  icons = [
-    Icons.dashboard_outlined,
-    Icons.inventory_2_outlined,
-    Icons.receipt_long_outlined,
-    Icons.bar_chart_outlined,
-    Icons.person_outline,
-  ];
-} 
-else if (auth.isManager) {
-  icons = [
-    Icons.dashboard_outlined,
-    Icons.receipt_long_outlined,
-    Icons.bar_chart_outlined,
-    Icons.person_outline,
-  ];
-} 
-else {
-  icons = [
-    Icons.dashboard_outlined,
-    Icons.receipt_long_outlined,
-    Icons.person_outline,
-  ];
-}
+      icons = [
+        Icons.dashboard_outlined,
+        Icons.inventory_2_outlined,
+        Icons.receipt_long_outlined,
+        Icons.bar_chart_outlined,
+        Icons.person_outline,
+      ];
 
-if (controller.currentIndex.value >= pages.length) {
-  controller.currentIndex.value = 0;
-}
+    } else if (auth.isManager) {
+
+      pages = const [
+        DashboardScreen(),
+        OrdersScreen(),
+        ReportsScreen(),
+        ProfileScreen(),
+      ];
+
+      icons = [
+        Icons.dashboard_outlined,
+        Icons.receipt_long_outlined,
+        Icons.bar_chart_outlined,
+        Icons.person_outline,
+      ];
+
+    } else {
+
+      pages = const [
+        DashboardScreen(),
+        OrdersScreen(),
+        ProfileScreen(),
+      ];
+
+      icons = [
+        Icons.dashboard_outlined,
+        Icons.receipt_long_outlined,
+        Icons.person_outline,
+      ];
+    }
+
+    /// Prevent index crash
+    if (controller.currentIndex.value >= pages.length) {
+      controller.currentIndex.value = 0;
+    }
+
     return Scaffold(
-      body: Obx(() => pages[controller.currentIndex.value]),
 
-      bottomNavigationBar: Obx(
-        () => Container(
-          margin: const EdgeInsets.all(20),
-          padding: const EdgeInsets.symmetric(vertical: 14),
-          decoration: BoxDecoration(
-            color: Colors.grey.shade900,
-            borderRadius: BorderRadius.circular(30),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: List.generate(icons.length, (index) {
-              final isActive =
-                  controller.currentIndex.value == index;
+      body: pages[controller.currentIndex.value],
 
-              return GestureDetector(
-                onTap: () => controller.changeTab(index),
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 300),
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 18, vertical: 10),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                    color: isActive
-                        ? Colors.white
-                        : Colors.transparent,
-                  ),
-                  child: Icon(
-                    icons[index],
-                    color:
-                        isActive ? Colors.black : Colors.grey,
-                  ),
+      bottomNavigationBar: Container(
+        margin: const EdgeInsets.all(20),
+        padding: const EdgeInsets.symmetric(vertical: 14),
+        decoration: BoxDecoration(
+          color: Colors.grey.shade900,
+          borderRadius: BorderRadius.circular(30),
+        ),
+
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+
+          children: List.generate(icons.length, (index) {
+
+            final isActive =
+                controller.currentIndex.value == index;
+
+            return GestureDetector(
+              onTap: () => controller.changeTab(index),
+
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 18, vertical: 10),
+
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  color: isActive
+                      ? Colors.white
+                      : Colors.transparent,
                 ),
-              );
-            }),
-          ),
+
+                child: Icon(
+                  icons[index],
+                  color: isActive
+                      ? Colors.black
+                      : Colors.grey,
+                ),
+              ),
+            );
+          }),
         ),
       ),
     );
-  }
+  });
+}
 }

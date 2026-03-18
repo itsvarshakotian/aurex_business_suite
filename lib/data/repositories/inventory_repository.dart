@@ -1,27 +1,35 @@
+import 'dart:developer';
 import 'package:dio/dio.dart';
-
-import '../../core/resources/url_resources.dart';
-import '../../core/services/dio_service.dart';
 import '../models/product_model.dart';
 
 class InventoryRepository {
-  final Dio dio = DioService().dio;
+  final Dio _dio = Dio();
 
-  Future<List<ProductModel>> fetchProducts() async {
-    try {
-      final response =
-          await dio.get(UrlResources.products);
+  Future<List<ProductModel>> fetchProducts({
+  int limit = 10,
+  int skip = 0,
+}) async {
+  try {
+    final response = await _dio.get(
+      "https://dummyjson.com/products",
+      queryParameters: {
+        "limit": limit,
+        "skip": skip,
+      },
+    );
 
-      final List products = response.data["products"];
+    if (response.statusCode == 200) {
+      final List products = response.data['products'];
 
       return products
           .map((e) => ProductModel.fromJson(e))
           .toList();
-    } on DioException catch (e) {
-      throw Exception(
-        e.response?.data["message"] ??
-            "Failed to load products",
-      );
+    } else {
+      throw Exception("Status code: ${response.statusCode}");
     }
+
+  } catch (e) {
+    throw Exception("Failed to load products: $e");
   }
+}
 }

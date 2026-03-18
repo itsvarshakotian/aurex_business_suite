@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:fl_chart/fl_chart.dart';
-
-import '../../core/resources/color_resources.dart';
+import '../../core/utils/no_internet_widget.dart';
 import 'dashboard_controller.dart';
 
 class DashboardScreen extends StatelessWidget {
@@ -15,6 +14,11 @@ class DashboardScreen extends StatelessWidget {
 
     return SafeArea(
       child: Obx(() {
+        if (controller.noInternet.value) {
+          return NoInternetWidget(
+        onRetry: controller.loadDashboard,
+       );
+      }
         if (controller.userRole.value == "Admin") {
           return adminDashboard(controller);
         }
@@ -28,7 +32,7 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
-  /// ADMIN DASHBOARD
+  // ADMIN DASHBOARD
   Widget adminDashboard(DashboardController controller) {
 
     return RefreshIndicator(
@@ -101,7 +105,7 @@ class DashboardScreen extends StatelessWidget {
   }
 
  
-  /// MANAGER DASHBOARD
+  //MANAGER DASHBOARD
   Widget managerDashboard(DashboardController controller) {
 
     return RefreshIndicator(
@@ -233,7 +237,7 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
-  /// STAFF DASHBOARD
+  //STAFF DASHBOARD
 
   Widget staffDashboard(DashboardController controller) {
 
@@ -330,7 +334,7 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
-  /// COMMON WIDGETS
+  // COMMON WIDGETS
   Widget statCard(String title, String value) {
 
     return Container(
