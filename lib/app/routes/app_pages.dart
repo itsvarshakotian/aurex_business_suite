@@ -1,13 +1,17 @@
 import 'package:get/get.dart';
 import '../../features/navigation/main_navigation_binding.dart';
 import '../../features/navigation/main_navigation_screen.dart';
-import 'app_routes.dart';
 
 import '../../features/splash/splash_screen.dart';
 import '../../features/splash/splash_binding.dart';
 
 import '../../features/auth/login_screen.dart';
 import '../../features/auth/login_binding.dart';
+
+import '../../create_order/create_order_screen.dart'; 
+import '../../create_order/create_order_binding.dart';
+
+import 'app_routes.dart';
 
 class AppPages {
   static final routes = <GetPage>[
@@ -22,9 +26,16 @@ class AppPages {
       binding: LoginBinding(),
     ),
     GetPage(
-  name: AppRoutes.dashboard,
-  page: () => const MainNavigationScreen(),
-  binding: MainNavigationBinding(),
-),
+      name: AppRoutes.dashboard,
+      page: () => const MainNavigationScreen(),
+      binding: MainNavigationBinding(),
+    ),
+
+    // CREATE ORDER
+    GetPage(
+      name: AppRoutes.createOrder,
+      page: () => const CreateOrderScreen(),
+      binding: CreateOrderBinding(),
+    ),
   ];
 }

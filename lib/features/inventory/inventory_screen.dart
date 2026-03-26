@@ -19,13 +19,13 @@ class InventoryScreen extends StatelessWidget {
         backgroundColor: Colors.transparent,
 
         // Admin only
-        floatingActionButton: auth.isAdmin
-            ? FloatingActionButton(
-                backgroundColor: Colors.white,
-                onPressed: () {},
-                child: const Icon(Icons.add, color: Colors.black),
-              )
-            : null,
+        // floatingActionButton: auth.isAdmin
+        //     ? FloatingActionButton(
+        //         backgroundColor: Colors.white,
+        //         onPressed: () {},
+        //         child: const Icon(Icons.add, color: Colors.black),
+        //       )
+        //     : null,
 
         body: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),

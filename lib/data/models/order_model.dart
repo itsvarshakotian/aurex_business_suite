@@ -34,7 +34,8 @@ class OrderModel {
   final int totalQuantity;
   final List<OrderProductModel> products;
   final DateTime date;
-  final String status;
+
+  String status;
 
   OrderModel({
     required this.id,
@@ -61,7 +62,7 @@ class OrderModel {
       ),
 
     //STATUS
-    status: json['status'] ?? "Completed",
+   status: (json['status'] ?? "pending").toString().toLowerCase(),
   );
 }
 }

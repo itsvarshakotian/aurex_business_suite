@@ -6,7 +6,7 @@ import '../../data/models/order_model.dart';
 import '../../data/repositories/orders_repository.dart';
 
 class OrdersController extends GetxController {
-  final OrdersRepository repository = OrdersRepository();
+  
 
   final RxList<OrderModel> orders = <OrderModel>[].obs;
 
@@ -21,6 +21,9 @@ class OrdersController extends GetxController {
   final RxBool hasMore = true.obs;
 
   final ScrollController scrollController = ScrollController();
+  final RxList<OrderModel> localOrders = <OrderModel>[].obs;
+
+  DateTime? lastCacheTime;
 
   @override
   void onInit() {
@@ -41,57 +44,51 @@ class OrdersController extends GetxController {
   }
 
   Future<void> fetchOrders({bool isLoadMore = false}) async {
-    try {
+    // CLEAR CACHE AFTER 30 MIN
+if (lastCacheTime != null &&
+    DateTime.now().difference(lastCacheTime!).inMinutes > 30) {
+  localOrders.clear();
+}
+  try {
+    if (isLoadMore) {
+      isMoreLoading.value = true;
+    } else {
+      isLoading.value = true;
+      errorMessage.value = "";
 
-      if (isLoadMore) {
-        isMoreLoading.value = true;
-      } else {
-        isLoading.value = true;
-        errorMessage.value = "";
+      skip = 0;
 
-        skip = 0;
-        orders.clear();
-        hasMore.value = true;
-      }
+      hasMore.value = true;
+    }
 
-      log("Params → skip: $skip, limit: $limit");
+    final data = await repo.fetchOrders(
+      limit: limit,
+      skip: skip,
+    );
 
-      final data = await repo.fetchOrders(
-        limit: limit,
-        skip: skip,
-      );
+    if (data.isEmpty) {
+      hasMore.value = false;
+    } else {
 
-
-
-      if (data.isEmpty) {
-        hasMore.value = false;
+      if (!isLoadMore) {
+      orders.assignAll([
+  ...localOrders,
+  ...data,
+]);
       } else {
         orders.addAll(data);
-        skip += limit;
-
-        log(" Orders added. Total Orders: ${orders.length}");
-
-        //  Log each order (important for debugging)
-        for (int i = 0; i < data.length; i++) {
-          final order = data[i];
-
-          // adjust fields based on your model
-          if (order.products == null || order.products!.isEmpty) {
-          } else {
-            for (var product in order.products!) {
-            }
-          }
-        }
       }
 
-    } catch (e) {
-      log("ERROR in fetchOrders: $e");
-      errorMessage.value = e.toString();
-    } finally {
-      isLoading.value = false;
-      isMoreLoading.value = false;
+      skip += limit;
     }
+
+  } catch (e) {
+    errorMessage.value = e.toString();
+  } finally {
+    isLoading.value = false;
+    isMoreLoading.value = false;
   }
+}
 
   Future<void> createOrder() async {
     try {
@@ -99,9 +96,11 @@ class OrdersController extends GetxController {
       isLoading.value = true;
       errorMessage.value = "";
 
-      final newOrder = await repository.createOrder();
+      final newOrder = await repo.createOrder();
 
       orders.insert(0, newOrder);
+      localOrders.insert(0, newOrder);
+
 
       log("Order Created Successfully");
       log("New Order ID: ${newOrder.id}");
@@ -115,4 +114,35 @@ class OrdersController extends GetxController {
       isLoading.value = false;
     }
   }
+  Future<void> updateOrderStatus(
+    int orderId, String newStatus) async {
+  try {
+    final index =
+        orders.indexWhere((order) => order.id == orderId);
+
+    if (index == -1) return;
+
+    /// 🔥 1. UPDATE UI IMMEDIATELY
+    orders[index].status = newStatus.toLowerCase();
+    orders.refresh();
+
+    /// 🔥 ALSO update local cache
+    final localIndex =
+        localOrders.indexWhere((o) => o.id == orderId);
+
+    if (localIndex != -1) {
+      localOrders[localIndex].status = newStatus.toLowerCase();
+    }
+
+    /// 🔥 2. CALL API IN BACKGROUND
+    await repo.updateOrderStatus(
+      orderId: orderId,
+      status: newStatus,
+    );
+
+  } catch (e) {
+    /// ❗ OPTIONAL: rollback if API fails
+    print("API failed: $e");
+  }
+}
 }

@@ -44,4 +44,34 @@ class SnackbarHelper {
       duration: const Duration(seconds: 2),
     );
   }
+  static Color getStatusColor(String status) {
+  switch (status.toLowerCase()) {
+    case "pending":
+      return Colors.orange;
+    case "processing":
+      return Colors.blue;
+    case "shipped":
+      return Colors.purple;
+    case "delivered":
+      return Colors.green;
+    case "cancelled":
+      return Colors.red;
+    default:
+      return Colors.grey;
+  }
+}
+static List<String> getNextStatuses(String currentStatus) {
+  switch (currentStatus.toLowerCase()) {
+    case "pending":
+      return ["processing", "cancelled"];
+    case "processing":
+      return ["shipped", "cancelled"];
+    case "shipped":
+      return ["delivered"];
+    case "delivered":
+      return [];
+    default:
+      return [];
+  }
+}
 }

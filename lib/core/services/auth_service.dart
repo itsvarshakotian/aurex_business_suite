@@ -19,9 +19,10 @@ class AuthService extends GetxService {
     return this;
   }
 
-  bool get isAdmin => role.value == "Admin";
-  bool get isManager => role.value == "Manager";
-  bool get isStaff => role.value == "Staff";
+  bool get isAdmin => role.value.toLowerCase() == "admin";
+  bool get isManager => role.value.toLowerCase() == "manager";
+  bool get isStaff => role.value.toLowerCase() == "staff";
+  bool get canCreateOrder => isAdmin || isManager;
 
 Future<void> logout() async {
   final storage = StorageService();
