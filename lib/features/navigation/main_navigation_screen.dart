@@ -6,7 +6,6 @@ import '../dashboard/dashboard_screen.dart';
 import '../inventory/inventory_screen.dart';
 import '../orders/orders_screen.dart';
 import '../reports/reports_screen.dart';
-import '../profile/profile_screen.dart';
 import 'main_navigation_controller.dart';
 
 class MainNavigationScreen extends StatelessWidget {
@@ -30,7 +29,6 @@ Widget build(BuildContext context) {
         InventoryScreen(),
         OrdersScreen(),
         ReportsScreen(),
-        ProfileScreen(),
       ];
 
       icons = [
@@ -38,7 +36,6 @@ Widget build(BuildContext context) {
         Icons.inventory_2_outlined,
         Icons.receipt_long_outlined,
         Icons.bar_chart_outlined,
-        Icons.person_outline,
       ];
 
     } else if (auth.isManager) {
@@ -47,14 +44,12 @@ Widget build(BuildContext context) {
         DashboardScreen(),
         OrdersScreen(),
         ReportsScreen(),
-        ProfileScreen(),
       ];
 
       icons = [
         Icons.dashboard_outlined,
         Icons.receipt_long_outlined,
         Icons.bar_chart_outlined,
-        Icons.person_outline,
       ];
 
     } else {
@@ -62,13 +57,11 @@ Widget build(BuildContext context) {
       pages = const [
         DashboardScreen(),
         OrdersScreen(),
-        ProfileScreen(),
       ];
 
       icons = [
         Icons.dashboard_outlined,
         Icons.receipt_long_outlined,
-        Icons.person_outline,
       ];
     }
 
