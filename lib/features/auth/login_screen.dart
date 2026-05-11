@@ -12,140 +12,213 @@ class LoginScreen extends StatelessWidget {
     final controller = Get.find<LoginController>();
 
     return Scaffold(
-      backgroundColor: ColorResources.primaryBackground,
-      body: Center(
-        child: Container(
-          width: 420,
-          padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 48),
-          decoration: BoxDecoration(
-            color: ColorResources.secondaryBackground,
-            borderRadius: BorderRadius.circular(24),
-            border: const Border(
-              top: BorderSide(color: ColorResources.borderLight),
-              left: BorderSide(color: ColorResources.borderLight),
-              right: BorderSide(color: ColorResources.borderLight),
-              bottom: BorderSide(color: ColorResources.borderLight),
-            ),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFF0F172A), Color(0xFF020617)],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
           ),
-          child: Obx(
-            () => Column(
+        ),
+
+        child: Center(
+          child: Container(
+            width: 420,
+            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 36),
+
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.05),
+              borderRadius: BorderRadius.circular(28),
+              border: Border.all(color: Colors.white.withOpacity(0.08)),
+            ),
+
+            child: Column(
               mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
 
-                /// Brand Title
-                Text(
-                  "AUREX",
-                  style: GoogleFonts.poppins(
-                    fontSize: 32,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 2,
-                    color: ColorResources.goldPrimary,
-                  ),
+                /// 🔥 BRAND (CENTERED)
+                Column(
+                  children: [
+                    Text(
+                      "AUREX",
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.poppins(
+                        fontSize: 30,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 2,
+                        color: ColorResources.goldPrimary,
+                      ),
+                    ),
+
+                    const SizedBox(height: 8),
+
+                    Text(
+                      "Enterprise Business Suite",
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.poppins(
+                        fontSize: 13,
+                        color: Colors.white60,
+                      ),
+                    ),
+                  ],
                 ),
 
-                const SizedBox(height: 6),
+                const SizedBox(height: 32),
 
-                Text(
-                  "Enterprise Business Suite",
-                  style: GoogleFonts.poppins(
-                    fontSize: 14,
-                    color: ColorResources.textSecondary,
-                  ),
-                ),
+                /// FORM SECTION
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
 
-                const SizedBox(height: 40),
+                    /// USERNAME
+                    TextField(
+                      controller: controller.usernameController,
+                      style: const TextStyle(color: Colors.white),
+                      decoration: InputDecoration(
+                        labelText: "Username",
+                        filled: true,
+                        fillColor: Colors.white.withOpacity(0.05),
 
-                //USERNAME
-                Text(
-                  "USERNAME",
-                  style: GoogleFonts.poppins(
-                    fontSize: 12,
-                    color: ColorResources.textTertiary,
-                    letterSpacing: 1.2,
-                  ),
-                ),
+                        prefixIcon: const Icon(Icons.person_outline, color: Colors.white54),
 
-                const SizedBox(height: 8),
-
-                TextField(
-                  controller: controller.usernameController,
-                  style: const TextStyle(
-                    color: ColorResources.textPrimary,
-                  ),
-                ),
-
-                const SizedBox(height: 24),
-
-                /// Password Label
-                Text(
-                  "PASSWORD",
-                  style: GoogleFonts.poppins(
-                    fontSize: 12,
-                    color: ColorResources.textTertiary,
-                    letterSpacing: 1.2,
-                  ),
-                ),
-
-                const SizedBox(height: 8),
-
-                TextField(
-                  controller: controller.passwordController,
-                  obscureText: true,
-                  style: const TextStyle(
-                    color: ColorResources.textPrimary,
-                  ),
-                ),
-
-                const SizedBox(height: 24),
-
-                /// Role Dropdown
-                DropdownButtonFormField<String>(
-                  value: controller.selectedRole.value,
-                  dropdownColor: ColorResources.surface,
-
-                  decoration: const InputDecoration(),
-
-                  style: const TextStyle(
-                    color: ColorResources.textPrimary,
-                  ),
-
-                  items: ["Admin", "Manager", "Staff"]
-                      .map(
-                        (role) => DropdownMenuItem(
-                          value: role,
-                          child: Text(role),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(14),
+                          borderSide: BorderSide.none,
                         ),
-                      )
-                      .toList(),
-                  onChanged: (value) {
-                    controller.selectedRole.value = value ?? "Admin";
-                  },
-                ),
 
-                const SizedBox(height: 36),
-
-                /// Login Button
-                controller.isLoading.value
-                    ? const Center(
-                        child: CircularProgressIndicator(
-                          color: ColorResources.goldPrimary,
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(14),
+                          borderSide: BorderSide(
+                            color: ColorResources.goldPrimary,
+                            width: 1.4,
+                          ),
                         ),
-                      )
-                    : SizedBox(
-                        width: double.infinity,
-                        height: 56,
-                        child: ElevatedButton(
-                          onPressed: controller.login,
-                          child: Text(
-                            "Login",
-                            style: GoogleFonts.poppins(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w600,
+                      ),
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    /// PASSWORD
+                    Obx(
+                      () => TextField(
+                        controller: controller.passwordController,
+                        obscureText: !controller.isPasswordVisible.value,
+                        style: const TextStyle(color: Colors.white),
+
+                        decoration: InputDecoration(
+                          labelText: "Password",
+                          filled: true,
+                          fillColor: Colors.white.withOpacity(0.05),
+
+                          prefixIcon: const Icon(Icons.lock_outline, color: Colors.white54),
+
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              controller.isPasswordVisible.value
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
+                              color: Colors.white54,
+                            ),
+                            onPressed: controller.isPasswordVisible.toggle,
+                          ),
+
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(14),
+                            borderSide: BorderSide.none,
+                          ),
+
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(14),
+                            borderSide: BorderSide(
+                              color: ColorResources.goldPrimary,
+                              width: 1.4,
                             ),
                           ),
                         ),
                       ),
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    /// ROLE LABEL
+                    Text(
+                      "Select Role",
+                      style: GoogleFonts.poppins(
+                        fontSize: 12,
+                        color: Colors.white60,
+                      ),
+                    ),
+
+                    const SizedBox(height: 10),
+
+                    /// ROLE SELECTOR
+                    Obx(
+                      () => Row(
+                        children: ["Admin", "Manager", "Staff"].map((role) {
+                          final isSelected =
+                              controller.selectedRole.value == role;
+
+                          return Expanded(
+                            child: GestureDetector(
+                              onTap: () {
+                                controller.selectedRole.value = role;
+                              },
+
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 200),
+                                margin: const EdgeInsets.only(right: 8),
+                                padding: const EdgeInsets.symmetric(vertical: 12),
+
+                                decoration: BoxDecoration(
+                                  color: isSelected
+                                      ? ColorResources.goldPrimary
+                                      : Colors.white.withOpacity(0.05),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+
+                                child: Center(
+                                  child: Text(
+                                    role,
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w500,
+                                      color: isSelected
+                                          ? Colors.black
+                                          : Colors.white70,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+
+                    const SizedBox(height: 28),
+
+                    /// LOGIN BUTTON
+                    SizedBox(
+                      height: 52,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: ColorResources.goldPrimary,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                        ),
+                        onPressed: controller.login,
+                        child: Text(
+                          "Login",
+                          style: GoogleFonts.poppins(
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),

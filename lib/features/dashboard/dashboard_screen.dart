@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../../core/utils/no_internet_widget.dart';
+import '../../core/resources/color_resources.dart';
 import 'dashboard_controller.dart';
 
 class DashboardScreen extends StatelessWidget {
@@ -12,33 +13,36 @@ class DashboardScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = Get.find<DashboardController>();
 
-    return SafeArea(
-      child: Obx(() {
-        if (controller.noInternet.value) {
-          return NoInternetWidget(
-        onRetry: controller.loadDashboard,
-       );
-      }
-        if (controller.userRole.value == "Admin") {
-          return adminDashboard(controller);
-        }
+    return Scaffold(
+      backgroundColor: ColorResources.primaryBackground,
+      body: SafeArea(
+        child: Obx(() {
+          if (controller.noInternet.value) {
+            return NoInternetWidget(
+              onRetry: controller.loadDashboard,
+            );
+          }
 
-        if (controller.userRole.value == "Manager") {
-          return managerDashboard(controller);
-        }
+          if (controller.userRole.value == "Admin") {
+            return adminDashboard(controller);
+          }
 
-        return staffDashboard(controller);
-      }),
+          if (controller.userRole.value == "Manager") {
+            return managerDashboard(controller);
+          }
+
+          return staffDashboard(controller);
+        }),
+      ),
     );
   }
 
-  // ADMIN DASHBOARD
+  // ================= ADMIN =================
   Widget adminDashboard(DashboardController controller) {
-
     return RefreshIndicator(
       onRefresh: controller.loadDashboard,
       child: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+        padding: const EdgeInsets.all(24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -48,7 +52,7 @@ class DashboardScreen extends StatelessWidget {
               style: GoogleFonts.poppins(
                 fontSize: 28,
                 fontWeight: FontWeight.w600,
-                color: Colors.white,
+                color: ColorResources.textPrimary,
               ),
             ),
 
@@ -56,7 +60,7 @@ class DashboardScreen extends StatelessWidget {
 
             Text(
               "Welcome back, ${controller.userRole.value}",
-              style: const TextStyle(color: Colors.grey),
+              style: const TextStyle(color: ColorResources.textSecondary),
             ),
 
             const SizedBox(height: 30),
@@ -68,33 +72,16 @@ class DashboardScreen extends StatelessWidget {
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               children: [
-
-                statCard(
-                  "Sales",
-                  controller.salesCount.value.toString(),
-                ),
-
-                statCard(
-                  "Revenue",
-                  "₹${controller.revenue.value.toStringAsFixed(0)}",
-                ),
-
-                statCard(
-                  "Active Users",
-                  controller.activeUsers.value.toString(),
-                ),
-
-                statCard(
-                  "Low Stock",
-                  controller.pendingTasks.value.toString(),
-                ),
+                statCard("Sales", controller.salesCount.value.toString()),
+                statCard("Revenue", "₹${controller.revenue.value.toStringAsFixed(0)}"),
+                statCard("Active Users", controller.activeUsers.value.toString()),
+                statCard("Low Stock", controller.pendingTasks.value.toString()),
               ],
             ),
 
             const SizedBox(height: 30),
 
             sectionTitle("Revenue (Last 7 Days)"),
-
             const SizedBox(height: 12),
 
             revenueChart(controller),
@@ -104,14 +91,12 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
- 
-  //MANAGER DASHBOARD
+  // ================= MANAGER =================
   Widget managerDashboard(DashboardController controller) {
-
     return RefreshIndicator(
       onRefresh: controller.loadDashboard,
       child: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+        padding: const EdgeInsets.all(24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -121,7 +106,7 @@ class DashboardScreen extends StatelessWidget {
               style: GoogleFonts.poppins(
                 fontSize: 28,
                 fontWeight: FontWeight.w600,
-                color: Colors.white,
+                color: ColorResources.textPrimary,
               ),
             ),
 
@@ -129,7 +114,7 @@ class DashboardScreen extends StatelessWidget {
 
             Text(
               "Welcome ${controller.userRole.value}",
-              style: const TextStyle(color: Colors.grey),
+              style: const TextStyle(color: ColorResources.textSecondary),
             ),
 
             const SizedBox(height: 30),
@@ -140,35 +125,17 @@ class DashboardScreen extends StatelessWidget {
               mainAxisSpacing: 16,
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              childAspectRatio: 1.2,
               children: [
-
-                statCard(
-                  "Total Orders",
-                  controller.salesCount.value.toString(),
-                ),
-
-                statCard(
-                  "Revenue",
-                  "₹${controller.revenue.value.toStringAsFixed(0)}",
-                ),
-
-                statCard(
-                  "Low Stock",
-                  controller.lowStockProducts.length.toString(),
-                ),
-
-                statCard(
-                  "Pending Tasks",
-                  controller.pendingTasks.value.toString(),
-                ),
+                statCard("Total Orders", controller.salesCount.value.toString()),
+                statCard("Revenue", "₹${controller.revenue.value.toStringAsFixed(0)}"),
+                statCard("Low Stock", controller.lowStockProducts.length.toString()),
+                statCard("Pending Tasks", controller.pendingTasks.value.toString()),
               ],
             ),
 
             const SizedBox(height: 30),
 
             sectionTitle("Revenue (Last 7 Days)"),
-
             const SizedBox(height: 12),
 
             revenueChart(controller),
@@ -176,75 +143,54 @@ class DashboardScreen extends StatelessWidget {
             const SizedBox(height: 30),
 
             sectionTitle("Order Status"),
-
             const SizedBox(height: 12),
 
             ...controller.orderStatusCount.entries.map((entry) {
-
               return containerCard(
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-
-                    Text(
-                      entry.key,
-                      style: const TextStyle(color: Colors.white),
-                    ),
-
-                    Text(
-                      entry.value.toString(),
-                      style: const TextStyle(color: Colors.grey),
-                    ),
+                    Text(entry.key,
+                        style: const TextStyle(color: ColorResources.textPrimary)),
+                    Text(entry.value.toString(),
+                        style: const TextStyle(color: ColorResources.textSecondary)),
                   ],
                 ),
               );
-
             }),
 
             const SizedBox(height: 30),
 
             sectionTitle("Low Stock Products"),
-
             const SizedBox(height: 12),
 
             ...controller.lowStockProducts.map((product) {
-
               return containerCard(
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-
                     Expanded(
-                      child: Text(
-                        product.title,
-                        style: const TextStyle(color: Colors.white),
-                      ),
+                      child: Text(product.title,
+                          style: const TextStyle(color: ColorResources.textPrimary)),
                     ),
-
-                    Text(
-                      "Stock ${product.stock}",
-                      style: const TextStyle(color: Colors.red),
-                    ),
+                    Text("Stock ${product.stock}",
+                        style: const TextStyle(color: ColorResources.error)),
                   ],
                 ),
               );
-
             }),
-
           ],
         ),
       ),
     );
   }
 
-  //STAFF DASHBOARD
-
+  // ================= STAFF =================
   Widget staffDashboard(DashboardController controller) {
-
     return RefreshIndicator(
       onRefresh: controller.loadDashboard,
       child: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+        padding: const EdgeInsets.all(24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -254,7 +200,7 @@ class DashboardScreen extends StatelessWidget {
               style: GoogleFonts.poppins(
                 fontSize: 28,
                 fontWeight: FontWeight.w600,
-                color: Colors.white,
+                color: ColorResources.textPrimary,
               ),
             ),
 
@@ -262,13 +208,12 @@ class DashboardScreen extends StatelessWidget {
 
             const Text(
               "Welcome Staff",
-              style: TextStyle(color: Colors.grey),
+              style: TextStyle(color: ColorResources.textSecondary),
             ),
 
             const SizedBox(height: 30),
 
             sectionTitle("Quick Actions"),
-
             const SizedBox(height: 16),
 
             GridView.count(
@@ -278,79 +223,66 @@ class DashboardScreen extends StatelessWidget {
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               children: [
-
                 statCard("Create Order", "+"),
-
+                statCard("Orders Today", controller.salesCount.value.toString()),
                 statCard(
-                  "Orders Today",
-                  controller.salesCount.value.toString(),
-                ),
-
+                    "Pending Orders",
+                    controller.orderStatusCount["Pending"]?.toString() ?? "0"),
                 statCard(
-                  "Pending Orders",
-                  controller.orderStatusCount["Pending"]?.toString() ?? "0",
-                ),
-
-                statCard(
-                  "Completed Orders",
-                  controller.orderStatusCount["Completed"]?.toString() ?? "0",
-                ),
+                    "Completed Orders",
+                    controller.orderStatusCount["Completed"]?.toString() ?? "0"),
               ],
             ),
 
             const SizedBox(height: 30),
 
             sectionTitle("Low Stock Alerts"),
-
             const SizedBox(height: 12),
 
             ...controller.lowStockProducts.map((product) {
-
               return containerCard(
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-
                     Expanded(
-                      child: Text(
-                        product.title,
-                        style: const TextStyle(color: Colors.white),
-                      ),
+                      child: Text(product.title,
+                          style: const TextStyle(color: ColorResources.textPrimary)),
                     ),
-
-                    Text(
-                      "Stock ${product.stock}",
-                      style: const TextStyle(color: Colors.red),
-                    ),
+                    Text("Stock ${product.stock}",
+                        style: const TextStyle(color: ColorResources.error)),
                   ],
                 ),
               );
-
             }),
-
           ],
         ),
       ),
     );
   }
 
-  // COMMON WIDGETS
-  Widget statCard(String title, String value) {
+  // ================= COMMON =================
 
+  Widget statCard(String title, String value) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFF1A1D24),
+        color: ColorResources.secondaryBackground,
         borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: ColorResources.borderLight),
+        boxShadow: [
+          BoxShadow(
+            color: ColorResources.shadow.withOpacity(0.6),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
 
-          Text(
-            title,
-            style: const TextStyle(color: Colors.grey),
-          ),
+          Text(title,
+              style: const TextStyle(color: ColorResources.textSecondary)),
 
           const Spacer(),
 
@@ -359,7 +291,7 @@ class DashboardScreen extends StatelessWidget {
             style: const TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: ColorResources.textPrimary,
             ),
           ),
         ],
@@ -373,35 +305,33 @@ class DashboardScreen extends StatelessWidget {
       style: GoogleFonts.poppins(
         fontSize: 18,
         fontWeight: FontWeight.w600,
-        color: Colors.white,
+        color: ColorResources.textPrimary,
       ),
     );
   }
 
   Widget containerCard(Widget child) {
-
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFF1A1D24),
+        color: ColorResources.secondaryBackground,
         borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: ColorResources.borderLight),
       ),
       child: child,
     );
   }
 
   Widget revenueChart(DashboardController controller) {
-
     final values = controller.monthlyRevenue.values.toList();
 
-    // FIXED EMPTY CHECK
-    if (values.isEmpty || values.every((v) => v == 0)) {
+    if (values.isEmpty) {
       return containerCard(
         const Center(
           child: Text(
-            "No data available",
-            style: TextStyle(color: Colors.grey),
+            "No data",
+            style: TextStyle(color: ColorResources.textSecondary),
           ),
         ),
       );
@@ -413,7 +343,7 @@ class DashboardScreen extends StatelessWidget {
       height: 200,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFF1A1D24),
+        color: ColorResources.secondaryBackground,
         borderRadius: BorderRadius.circular(24),
       ),
       child: LineChart(
@@ -426,9 +356,22 @@ class DashboardScreen extends StatelessWidget {
           lineBarsData: [
             LineChartBarData(
               isCurved: true,
-              color: Colors.white,
+              color: ColorResources.goldPrimary,
               barWidth: 3,
               dotData: FlDotData(show: false),
+
+              belowBarData: BarAreaData(
+                show: true,
+                gradient: LinearGradient(
+                  colors: [
+                    ColorResources.goldPrimary.withOpacity(0.25),
+                    const Color(0x00000000),
+                  ],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                ),
+              ),
+
               spots: values
                   .asMap()
                   .entries

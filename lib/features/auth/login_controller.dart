@@ -18,6 +18,7 @@ class LoginController extends GetxController {
 
   final RxBool isLoading = false.obs;
   final RxString selectedRole = "Admin".obs;
+  final isPasswordVisible = false.obs;
 
   void login() async {
 

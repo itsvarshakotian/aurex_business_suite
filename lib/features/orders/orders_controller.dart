@@ -10,6 +10,9 @@ class OrdersController extends GetxController {
 
   final RxList<OrderModel> orders = <OrderModel>[].obs;
 
+  final RxString selectedStatus = "all".obs;
+final RxList<OrderModel> filteredOrders = <OrderModel>[].obs;
+
   final RxBool isLoading = false.obs;
   final RxString errorMessage = "".obs;
   final OrdersRepository repo = OrdersRepository();
@@ -42,6 +45,24 @@ class OrdersController extends GetxController {
   }
 });
   }
+  void applyFilters() {
+  List<OrderModel> list = orders.toList();
+
+  if (selectedStatus.value != "all") {
+    list = list
+        .where((order) =>
+            order.status.toLowerCase() ==
+            selectedStatus.value.toLowerCase())
+        .toList();
+  }
+
+  filteredOrders.assignAll(list);
+}
+
+void updateStatusFilter(String status) {
+  selectedStatus.value = status;
+  applyFilters();
+}
 
   Future<void> fetchOrders({bool isLoadMore = false}) async {
     // CLEAR CACHE AFTER 30 MIN
@@ -71,15 +92,20 @@ if (lastCacheTime != null &&
     } else {
 
       if (!isLoadMore) {
-      orders.assignAll([
-  ...localOrders,
-  ...data,
-]);
-      } else {
-        orders.addAll(data);
-      }
+  if (localOrders.isNotEmpty) {
+    /// 🔥 PRIORITY TO LOCAL DATA
+    orders.assignAll(localOrders);
+  } else {
+    orders.assignAll(data);
+    localOrders.assignAll(data); // cache initial
+  }
+} else {
+  orders.addAll(data);
+  localOrders.addAll(data);
+}
 
       skip += limit;
+      applyFilters();
     }
 
   } catch (e) {
@@ -99,6 +125,7 @@ if (lastCacheTime != null &&
       final newOrder = await repo.createOrder();
 
       orders.insert(0, newOrder);
+      applyFilters();
       localOrders.insert(0, newOrder);
 
 
@@ -125,6 +152,7 @@ if (lastCacheTime != null &&
     /// 🔥 1. UPDATE UI IMMEDIATELY
     orders[index].status = newStatus.toLowerCase();
     orders.refresh();
+    applyFilters();
 
     /// 🔥 ALSO update local cache
     final localIndex =
