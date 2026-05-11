@@ -1,3 +1,4 @@
+import 'package:aurex_business_suite/features/profile/settings_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -20,14 +21,27 @@ class AurexApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Aurex Business Suite',
 
-      // Premium Dark Theme
-      theme: ThemeData(
-        useMaterial3: true,
-        brightness: Brightness.dark,
+    /// INIT CONTROLLER ONCE
+    Get.put<SettingsController>(SettingsController(), permanent: true);
+    final settings = Get.find<SettingsController>();
+
+
+    return Obx(() {
+      return GetMaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'Aurex Business Suite',
+
+        ///  FIXED HERE
+        themeMode: settings.themeMode.value,
+
+        /// LIGHT THEME
+        theme: ThemeData.light(),
+
+        /// DARK THEME (YOUR DESIGN)
+        darkTheme: ThemeData(
+          useMaterial3: true,
+          brightness: Brightness.dark,
 
         //Background
         scaffoldBackgroundColor: ColorResources.primaryBackground,
@@ -149,9 +163,10 @@ class AurexApp extends StatelessWidget {
       // GetX Routes
       getPages: AppPages.routes,
 
-      // Smooth transition
-      defaultTransition: Transition.fadeIn,
-      transitionDuration: const Duration(milliseconds: 300),
-    );
+        defaultTransition: Transition.fadeIn,
+        transitionDuration:
+            const Duration(milliseconds: 300),
+      );
+    });
   }
 }

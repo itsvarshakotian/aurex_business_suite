@@ -1,9 +1,10 @@
-import 'package:flutter/material.dart' show ThemeMode;
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsController extends GetxController {
-  final RxBool isDarkMode = true.obs;
+
+  final Rx<ThemeMode> themeMode = ThemeMode.dark.obs;
   final RxBool notificationsEnabled = true.obs;
 
   @override
@@ -14,19 +15,22 @@ class SettingsController extends GetxController {
 
   Future<void> loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
-    isDarkMode.value = prefs.getBool("dark_mode") ?? true;
+
+    final isDark = prefs.getBool("dark_mode") ?? true;
+
+    themeMode.value =
+        isDark ? ThemeMode.dark : ThemeMode.light;
+
     notificationsEnabled.value =
         prefs.getBool("notifications") ?? true;
   }
 
-  Future<void> toggleTheme(bool value) async {
-    isDarkMode.value = value;
+  Future<void> toggleTheme(bool isDark) async {
+    themeMode.value =
+        isDark ? ThemeMode.dark : ThemeMode.light;
 
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool("dark_mode", value);
-
-    Get.changeThemeMode(
-        value ? ThemeMode.dark : ThemeMode.light);
+    await prefs.setBool("dark_mode", isDark);
   }
 
   Future<void> toggleNotifications(bool value) async {

@@ -173,7 +173,8 @@ class ProfileScreen extends StatelessWidget {
                         title: "Settings",
                         onTap: () {
                           final settings =
-                              Get.put(SettingsController());
+                              Get.find<SettingsController>();
+
 
                           Get.bottomSheet(
                             Obx(() {
@@ -198,7 +199,7 @@ class ProfileScreen extends StatelessWidget {
                                     const SizedBox(height: 20),
 
                                     SwitchListTile(
-                                      value: settings.isDarkMode.value,
+                                     value: settings.themeMode.value == ThemeMode.dark,
                                       onChanged:
                                           settings.toggleTheme,
                                       title: const Text("Dark Mode",
