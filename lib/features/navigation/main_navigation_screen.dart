@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../core/resources/color_resources.dart';
 import '../../core/services/auth_service.dart';
 import '../dashboard/dashboard_screen.dart';
 import '../inventory/inventory_screen.dart';
@@ -12,111 +13,125 @@ class MainNavigationScreen extends StatelessWidget {
   const MainNavigationScreen({super.key});
 
   @override
-Widget build(BuildContext context) {
+  Widget build(BuildContext context) {
+    final controller = Get.find<MainNavigationController>();
+    final auth = Get.find<AuthService>();
 
-  final controller = Get.find<MainNavigationController>();
-  final auth = Get.find<AuthService>();
+    return Obx(() {
 
-  return Obx(() {
+      List<Widget> pages;
+      List<_NavItem> items;
 
-    /// 🔥 NOW ROLE IS REACTIVE
-    List<Widget> pages;
-    List<IconData> icons;
+      if (auth.isAdmin) {
+        pages = const [
+          DashboardScreen(),
+          InventoryScreen(),
+          OrdersScreen(),
+          ReportsScreen(),
+        ];
 
-    if (auth.isAdmin) {
-      pages = const [
-        DashboardScreen(),
-        InventoryScreen(),
-        OrdersScreen(),
-        ReportsScreen(),
-      ];
+        items = [
+          _NavItem(Icons.dashboard_outlined, "Home"),
+          _NavItem(Icons.inventory_2_outlined, "Inventory"),
+          _NavItem(Icons.receipt_long_outlined, "Orders"),
+          _NavItem(Icons.bar_chart_outlined, "Reports"),
+        ];
 
-      icons = [
-        Icons.dashboard_outlined,
-        Icons.inventory_2_outlined,
-        Icons.receipt_long_outlined,
-        Icons.bar_chart_outlined,
-      ];
+      } else if (auth.isManager) {
+        pages = const [
+          DashboardScreen(),
+          OrdersScreen(),
+          ReportsScreen(),
+        ];
 
-    } else if (auth.isManager) {
+        items = [
+          _NavItem(Icons.dashboard_outlined, "Home"),
+          _NavItem(Icons.receipt_long_outlined, "Orders"),
+          _NavItem(Icons.bar_chart_outlined, "Reports"),
+        ];
 
-      pages = const [
-        DashboardScreen(),
-        OrdersScreen(),
-        ReportsScreen(),
-      ];
+      } else {
+        pages = const [
+          DashboardScreen(),
+          OrdersScreen(),
+        ];
 
-      icons = [
-        Icons.dashboard_outlined,
-        Icons.receipt_long_outlined,
-        Icons.bar_chart_outlined,
-      ];
+        items = [
+          _NavItem(Icons.dashboard_outlined, "Home"),
+          _NavItem(Icons.receipt_long_outlined, "Orders"),
+        ];
+      }
 
-    } else {
+      if (controller.currentIndex.value >= pages.length) {
+        controller.currentIndex.value = 0;
+      }
 
-      pages = const [
-        DashboardScreen(),
-        OrdersScreen(),
-      ];
+      final currentIndex = controller.currentIndex.value;
 
-      icons = [
-        Icons.dashboard_outlined,
-        Icons.receipt_long_outlined,
-      ];
-    }
+      return Scaffold(
+        body: pages[currentIndex],
 
-    /// Prevent index crash
-    if (controller.currentIndex.value >= pages.length) {
-      controller.currentIndex.value = 0;
-    }
+        /// 🔥 FLOATING NAV
+        bottomNavigationBar: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
 
-    return Scaffold(
-
-      body: pages[controller.currentIndex.value],
-
-      bottomNavigationBar: Container(
-        margin: const EdgeInsets.all(20),
-        padding: const EdgeInsets.symmetric(vertical: 14),
-        decoration: BoxDecoration(
-          color: Colors.grey.shade900,
-          borderRadius: BorderRadius.circular(30),
-        ),
-
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-
-          children: List.generate(icons.length, (index) {
-
-            final isActive =
-                controller.currentIndex.value == index;
-
-            return GestureDetector(
-              onTap: () => controller.changeTab(index),
-
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 300),
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 18, vertical: 10),
-
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  color: isActive
-                      ? Colors.white
-                      : Colors.transparent,
-                ),
-
-                child: Icon(
-                  icons[index],
-                  color: isActive
-                      ? Colors.black
-                      : Colors.grey,
-                ),
+          child: Container(
+            height: 80,
+            decoration: BoxDecoration(
+              color: ColorResources.secondaryBackground,
+              borderRadius: BorderRadius.circular(40),
+              border: Border.all(
+                color: ColorResources.borderLight,
               ),
-            );
-          }),
+            ),
+
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: List.generate(items.length, (index) {
+
+                final isActive = index == currentIndex;
+
+                return GestureDetector(
+                  onTap: () => controller.changeTab(index),
+
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 250),
+                    curve: Curves.easeOut,
+
+                    width: isActive ? 60 : 45,
+                    height: isActive ? 60 : 45,
+
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: isActive
+                          ? ColorResources.goldPrimary
+                          : Colors.transparent,
+                    ),
+
+                    child: Center(
+                      child: Icon(
+                        items[index].icon,
+                        size: isActive ? 26 : 22,
+                        color: isActive
+                            ? Colors.black
+                            : Colors.grey,
+                      ),
+                    ),
+                  ),
+                );
+              }),
+            ),
+          ),
         ),
-      ),
-    );
-  });
+      );
+    });
+  }
 }
+
+/// 🔥 MODEL
+class _NavItem {
+  final IconData icon;
+  final String label;
+
+  _NavItem(this.icon, this.label);
 }
