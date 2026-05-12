@@ -67,9 +67,9 @@ class ProfileScreen extends StatelessWidget {
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(20),
-                      color: Colors.white.withOpacity(0.05),
+                      color: Colors.white.withValues(alpha: 0.05),
                       border: Border.all(
-                        color: Colors.white.withOpacity(0.08),
+                        color: Colors.white.withValues(alpha: 0.08),
                       ),
                     ),
 
@@ -82,7 +82,7 @@ class ProfileScreen extends StatelessWidget {
                           child: CircleAvatar(
                             radius: 30,
                             backgroundColor:
-                                Colors.white.withOpacity(0.1),
+                                Colors.white.withValues(alpha: 0.1),
                             backgroundImage: path.isNotEmpty
                                 ? FileImage(File(path))
                                 : null,
@@ -114,7 +114,7 @@ class ProfileScreen extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: 12,
                                 color: Colors.white
-                                    .withOpacity(0.6),
+                                    .withValues(alpha: 0.6),
                               ),
                             ),
                           ],
@@ -130,9 +130,9 @@ class ProfileScreen extends StatelessWidget {
                 Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(20),
-                    color: Colors.white.withOpacity(0.05),
+                    color: Colors.white.withValues(alpha: 0.05),
                     border: Border.all(
-                      color: Colors.white.withOpacity(0.08),
+                      color: Colors.white.withValues(alpha: 0.08),
                     ),
                   ),
 
@@ -280,7 +280,7 @@ class ProfileScreen extends StatelessWidget {
 
   Widget divider() {
     return Divider(
-      color: Colors.white.withOpacity(0.08),
+      color: Colors.white.withValues(alpha: 0.08),
       height: 1,
     );
   }

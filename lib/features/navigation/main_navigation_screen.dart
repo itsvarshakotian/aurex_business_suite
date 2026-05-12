@@ -71,7 +71,7 @@ class MainNavigationScreen extends StatelessWidget {
       return Scaffold(
         body: pages[currentIndex],
 
-        /// 🔥 FLOATING NAV
+        /// FLOATING NAV
         bottomNavigationBar: Padding(
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
 
@@ -128,7 +128,7 @@ class MainNavigationScreen extends StatelessWidget {
   }
 }
 
-/// 🔥 MODEL
+/// MODEL
 class _NavItem {
   final IconData icon;
   final String label;

@@ -27,9 +27,9 @@ class LoginScreen extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 36),
 
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.05),
+              color: Colors.white.withValues(alpha:0.05),
               borderRadius: BorderRadius.circular(28),
-              border: Border.all(color: Colors.white.withOpacity(0.08)),
+              border: Border.all(color: Colors.white.withValues(alpha:0.08)),
             ),
 
             child: Column(
@@ -77,7 +77,7 @@ class LoginScreen extends StatelessWidget {
                       decoration: InputDecoration(
                         labelText: "Username",
                         filled: true,
-                        fillColor: Colors.white.withOpacity(0.05),
+                        fillColor: Colors.white.withValues(alpha:0.05),
 
                         prefixIcon: const Icon(Icons.person_outline, color: Colors.white54),
 
@@ -108,7 +108,7 @@ class LoginScreen extends StatelessWidget {
                         decoration: InputDecoration(
                           labelText: "Password",
                           filled: true,
-                          fillColor: Colors.white.withOpacity(0.05),
+                          fillColor: Colors.white.withValues(alpha: 0.05),
 
                           prefixIcon: const Icon(Icons.lock_outline, color: Colors.white54),
 
@@ -172,7 +172,7 @@ class LoginScreen extends StatelessWidget {
                                 decoration: BoxDecoration(
                                   color: isSelected
                                       ? ColorResources.goldPrimary
-                                      : Colors.white.withOpacity(0.05),
+                                      : Colors.white.withValues(alpha: 0.05),
                                   borderRadius: BorderRadius.circular(12),
                                 ),
 

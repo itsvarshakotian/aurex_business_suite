@@ -87,7 +87,7 @@ class DashboardScreen extends StatelessWidget {
                             Text(
                               "Welcome back",
                               style: TextStyle(
-                                color: Colors.white.withOpacity(0.6),
+                                color: Colors.white.withValues(alpha: 0.6),
                               ),
                             ),
                           ],
@@ -100,7 +100,7 @@ class DashboardScreen extends StatelessWidget {
                             );
                           },
                           child: CircleAvatar(
-                            backgroundColor: Colors.white.withOpacity(0.1),
+                            backgroundColor: Colors.white.withValues(alpha: 0.1),
                             child: const Icon(
                               Icons.person,
                               color: Colors.white,
@@ -175,7 +175,7 @@ class DashboardScreen extends StatelessWidget {
                                       borderRadius: BorderRadius.circular(10),
                                       color: isActive
                                           ? ColorResources.goldPrimary
-                                          : Colors.white.withOpacity(0.3),
+                                          : Colors.white.withValues(alpha: 0.3),
                                     ),
                                   );
                                 },
@@ -204,7 +204,7 @@ class DashboardScreen extends StatelessWidget {
                         Text(
                           "Overview of current system status",
                           style: TextStyle(
-                            color: Colors.white.withOpacity(0.5),
+                            color: Colors.white.withValues(alpha:0.5),
                             fontSize: 12,
                           ),
                         ),
@@ -246,7 +246,7 @@ class DashboardScreen extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24),
         gradient: LinearGradient(
-          colors: [color.withOpacity(0.35), color.withOpacity(0.08)],
+          colors: [color.withValues(alpha: 0.35), color.withValues(alpha: 0.08)],
         ),
       ),
       child: Column(
@@ -275,7 +275,7 @@ class DashboardScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 6),
-          Text(title, style: TextStyle(color: Colors.white.withOpacity(0.7))),
+          Text(title, style: TextStyle(color: Colors.white.withValues(alpha: 0.7))),
         ],
       ),
     );
@@ -290,17 +290,17 @@ class DashboardScreen extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
-        color: Colors.white.withOpacity(0.05),
+        color: Colors.white.withValues(alpha: 0.05),
         border: Border.all(
           color: isHigh
-              ? Colors.red.withOpacity(0.4)
-              : Colors.green.withOpacity(0.4),
+              ? Colors.red.withValues(alpha: 0.4)
+              : Colors.green.withValues(alpha: 0.4),
         ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: TextStyle(color: Colors.white.withOpacity(0.7))),
+          Text(title, style: TextStyle(color: Colors.white.withValues(alpha: 0.7))),
           const SizedBox(height: 10),
           Text(
             value.toString(),
@@ -348,7 +348,7 @@ class DashboardScreen extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24),
-        color: Colors.white.withOpacity(0.04),
+        color: Colors.white.withValues(alpha: 0.04),
       ),
       child: LineChart(
         LineChartData(
@@ -366,7 +366,7 @@ class DashboardScreen extends StatelessWidget {
                 show: true,
                 gradient: LinearGradient(
                   colors: [
-                    ColorResources.goldPrimary.withOpacity(0.3),
+                    ColorResources.goldPrimary.withValues(alpha: 0.3),
                     Colors.transparent,
                   ],
                 ),
