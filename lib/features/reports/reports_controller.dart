@@ -42,13 +42,11 @@ class ReportsController extends GetxController {
 
       log("Reports Refresh");
 
-      // RESET OLD DATA
       totalRevenue.value = 0;
       totalOrders.value = 0;
       totalProducts.value = 0;
       revenueChart.clear();
 
-      // INTERNET CHECK
       final hasInternet = await ConnectivityService().hasInternet();
 
       if (!hasInternet) {
@@ -56,9 +54,14 @@ class ReportsController extends GetxController {
         return;
       }
 
-      // FETCH
-      allOrders = await ordersRepo.fetchOrders();
-      allProducts = await inventoryRepo.fetchProducts();
+      /// 🔥 Parallel API calls (faster)
+      final results = await Future.wait([
+        ordersRepo.fetchOrders(),
+        inventoryRepo.fetchProducts(),
+      ]);
+
+      allOrders = results[0] as List<OrderModel>;
+      allProducts = results[1] as List<ProductModel>;
 
       applyFilter();
     } catch (e) {
@@ -90,6 +93,7 @@ class ReportsController extends GetxController {
       }).toList();
     }
 
+    /// KPIs
     totalOrders.value = filteredOrders.length;
 
     totalRevenue.value = filteredOrders.fold(
@@ -97,35 +101,73 @@ class ReportsController extends GetxController {
       (sum, order) => sum + order.total,
     );
 
+    /// ⚠️ If this means "sold items", change logic later
     totalProducts.value = allProducts.length;
 
-    generateChart(filteredOrders);
-    
+    /// 🔥 Dynamic chart based on filter
+    if (selectedFilter.value == "This Week") {
+      _generateWeeklyChart(filteredOrders);
+    } else if (selectedFilter.value == "This Month") {
+      _generateMonthlyChart(filteredOrders);
+    } else {
+      _generateYearlyChart(filteredOrders);
+    }
   }
 
- void generateChart(List<OrderModel> orders) {
-  final Map<int, double> dayRevenue = {};
+  /// 🔥 WEEKLY (7 days)
+  void _generateWeeklyChart(List<OrderModel> orders) {
+    final Map<String, double> dayRevenue = {};
 
-  // group revenue by day
-  for (var order in orders) {
-    final day = order.date.day;
-    dayRevenue[day] =
-        (dayRevenue[day] ?? 0) + order.total;
+    for (var order in orders) {
+      final key =
+          "${order.date.year}-${order.date.month}-${order.date.day}";
+      dayRevenue[key] = (dayRevenue[key] ?? 0) + order.total;
+    }
+
+    final List<double> chartValues = [];
+
+    for (int i = 6; i >= 0; i--) {
+      final date = DateTime.now().subtract(Duration(days: i));
+      final key = "${date.year}-${date.month}-${date.day}";
+      chartValues.add(dayRevenue[key] ?? 0);
+    }
+
+    revenueChart.assignAll(chartValues);
   }
 
-  // last 7 days chart
-  final List<double> chartValues = [];
+  /// 🔥 MONTHLY (last 30 days grouped by day)
+  void _generateMonthlyChart(List<OrderModel> orders) {
+    final Map<int, double> dayRevenue = {};
 
-  for (int i = 6; i >= 0; i--) {
-    final day = DateTime.now()
-        .subtract(Duration(days: i))
-        .day;
+    for (var order in orders) {
+      final day = order.date.day;
+      dayRevenue[day] = (dayRevenue[day] ?? 0) + order.total;
+    }
 
-    chartValues.add(dayRevenue[day] ?? 0);
+    final List<double> chartValues = [];
+
+    for (int i = 1; i <= 30; i++) {
+      chartValues.add(dayRevenue[i] ?? 0);
+    }
+
+    revenueChart.assignAll(chartValues);
   }
 
-  revenueChart.assignAll(chartValues);
+  /// 🔥 YEARLY (12 months)
+  void _generateYearlyChart(List<OrderModel> orders) {
+    final Map<int, double> monthRevenue = {};
 
-  log("Chart Data (7 Days): $revenueChart");
-}
+    for (var order in orders) {
+      final month = order.date.month;
+      monthRevenue[month] = (monthRevenue[month] ?? 0) + order.total;
+    }
+
+    final List<double> chartValues = [];
+
+    for (int i = 1; i <= 12; i++) {
+      chartValues.add(monthRevenue[i] ?? 0);
+    }
+
+    revenueChart.assignAll(chartValues);
+  }
 }

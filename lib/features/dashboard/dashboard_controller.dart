@@ -23,6 +23,9 @@ class DashboardController extends GetxController {
   final RxInt activeUsers = 0.obs;
   final RxInt pendingTasks = 0.obs;
   final RxBool noInternet = false.obs;
+  RxDouble avgRevenue = 0.0.obs;
+RxDouble growthPercent = 0.0.obs;
+RxDouble conversionRate = 0.0.obs;
 
   final RxBool isLoading = false.obs;
 

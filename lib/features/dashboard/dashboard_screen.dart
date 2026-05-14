@@ -7,6 +7,7 @@ import '../../core/utils/no_internet_widget.dart';
 import '../../core/resources/color_resources.dart';
 import '../profile/profile_binding.dart';
 import '../profile/profile_screen.dart';
+import '../orders/orders_controller.dart';
 import 'dashboard_controller.dart';
 
 class DashboardScreen extends StatelessWidget {
@@ -15,358 +16,411 @@ class DashboardScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<DashboardController>();
+    final ordersController = Get.find<OrdersController>();
 
     /// PAGE CONTROLLER
     final PageController pageController = PageController(
       viewportFraction: 0.88,
     );
 
-    /// AUTO SLIDER
+    final RxInt currentPage = 0.obs;
+
+    /// auto scroll
     Timer.periodic(const Duration(seconds: 4), (timer) {
       if (!pageController.hasClients) return;
-
-      int nextPage = pageController.page!.round() + 1;
-
-      if (nextPage > 2) {
-        nextPage = 0;
-      }
-
+      int next = pageController.page!.round() + 1;
+      if (next > 2) next = 0;
       pageController.animateToPage(
-        nextPage,
+        next,
         duration: const Duration(milliseconds: 500),
         curve: Curves.easeInOut,
       );
     });
 
+    pageController.addListener(() {
+      currentPage.value = pageController.page?.round() ?? 0;
+    });
+
     return Scaffold(
       backgroundColor: const Color(0xFF0B1220),
 
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFF0B1220), Color(0xFF0F172A), Color(0xFF020617)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
+      body: SafeArea(
+        child: Obx(() {
+          if (controller.noInternet.value) {
+            return NoInternetWidget(onRetry: controller.loadDashboard);
+          }
 
-        child: SafeArea(
-          child: Obx(() {
-            if (controller.noInternet.value) {
-              return NoInternetWidget(onRetry: controller.loadDashboard);
-            }
+          return RefreshIndicator(
+            onRefresh: controller.loadDashboard,
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.all(20),
 
-            return RefreshIndicator(
-              onRefresh: controller.loadDashboard,
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 24,
-                ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  /// HEADER
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "Dashboard",
+                        style: GoogleFonts.poppins(
+                          fontSize: 28,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          Get.to(
+                            () => const ProfileScreen(),
+                            binding: ProfileBinding(),
+                          );
+                        },
+                        child: CircleAvatar(
+                          backgroundColor: Colors.white.withOpacity(0.1),
+                          child: const Icon(Icons.person, color: Colors.white),
+                        ),
+                      ),
+                    ],
+                  ),
 
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    /// HEADER
-                    Row(
+                  const SizedBox(height: 24),
+
+                  /// HERO
+                  SizedBox(
+                    height: 160,
+                    child: PageView(
+                      controller: pageController,
+                      children: [
+                        _heroCard(
+                          "Revenue",
+                          "₹${_format(controller.animatedRevenue.value)}",
+                          Colors.greenAccent,
+                          Icons.trending_up,
+                        ),
+                        _heroCard(
+                          "Orders",
+                          controller.salesCount.value.toString(),
+                          Colors.blueAccent,
+                          Icons.shopping_cart,
+                        ),
+                        _heroCard(
+                          "Users",
+                          controller.activeUsers.value.toString(),
+                          Colors.purpleAccent,
+                          Icons.people,
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  ///  SCROLL DOTS
+                  const SizedBox(height: 10),
+                  Obx(() {
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: List.generate(3, (index) {
+                        final active = currentPage.value == index;
+                        return AnimatedContainer(
+                          duration: const Duration(milliseconds: 300),
+                          margin: const EdgeInsets.symmetric(horizontal: 4),
+                          height: 6,
+                          width: active ? 20 : 6,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            color: active
+                                ? ColorResources.goldPrimary
+                                : Colors.white.withOpacity(0.2),
+                          ),
+                        );
+                      }),
+                    );
+                  }),
+
+                  const SizedBox(height: 30),
+
+                  /// 🔥 GRAPH TITLE
+                  Text(
+                    "Revenue Overview",
+                    style: GoogleFonts.poppins(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+
+                  Text(
+                    "Last 7 days performance",
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.5),
+                      fontSize: 12,
+                    ),
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  /// GRAPH
+                  _chart(controller),
+
+                  const SizedBox(height: 20),
+
+                  ///  GROWTH + PEAK
+                  Obx(() {
+                    final data = controller.monthlyRevenue.values.toList();
+
+                    if (data.length < 2) return const SizedBox();
+
+                    final prev = data[data.length - 2];
+                    final curr = data.last;
+
+                    final growth = prev == 0 ? 0 : ((curr - prev) / prev) * 100;
+
+                    final max = data.reduce((a, b) => a > b ? a : b);
+
+                    return Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                        /// 🔹 LEFT → Growth
+                        Row(
                           children: [
-                            Text(
-                              "Dashboard",
-                              style: GoogleFonts.poppins(
-                                fontSize: 28,
-                                fontWeight: FontWeight.w700,
-                                color: Colors.white,
-                              ),
+                            Icon(
+                              growth >= 0
+                                  ? Icons.arrow_upward
+                                  : Icons.trending_down,
+                              color: growth >= 0 ? Colors.green : Colors.red,
+                              size: 18,
                             ),
-                            const SizedBox(height: 6),
+                            const SizedBox(width: 6),
                             Text(
-                              "Welcome back",
+                              growth >= 0
+                                  ? "+${growth.toStringAsFixed(1)}% growth"
+                                  : "${growth.toStringAsFixed(1)}% drop",
                               style: TextStyle(
-                                color: Colors.white.withValues(alpha: 0.6),
+                                color: growth >= 0 ? Colors.green : Colors.red,
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
                           ],
                         ),
-                        GestureDetector(
-                          onTap: () {
-                            Get.to(
-                              () => const ProfileScreen(),
-                              binding: ProfileBinding(),
-                            );
-                          },
-                          child: CircleAvatar(
-                            backgroundColor: Colors.white.withValues(alpha: 0.1),
-                            child: const Icon(
-                              Icons.person,
-                              color: Colors.white,
+
+                        /// 🔹 RIGHT → Highest
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.trending_up,
+                              color: Colors.amber,
+                              size: 18,
                             ),
-                          ),
+                            const SizedBox(width: 6),
+                            Text(
+                              "Highest: ₹${_format(max)}",
+                              style: const TextStyle(
+                                color: Colors.greenAccent,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
                         ),
                       ],
-                    ),
+                    );
+                  }),
 
-                    const SizedBox(height: 30),
+                  const SizedBox(height: 24),
 
-                    /// HERO CARDS
-                    SizedBox(
-                      height: 170,
-                      child: Column(
-                        children: [
-                          SizedBox(
-                            height: 135,
-                            child: PageView(
-                              controller: pageController,
+                  /// 🔥 QUICK STATS
+                Obx(() {
+  return Row(
+    children: [
+      Expanded(
+        child: _mini(
+          "Avg",
+          "₹${_format(controller.avgRevenue.value)}",
+        ),
+      ),
+      Expanded(
+        child: _mini(
+          "Growth",
+          "${controller.growthPercent.value.toStringAsFixed(1)}%",
+        ),
+      ),
+      Expanded(
+        child: _mini(
+          "Conv",
+          "${controller.conversionRate.value.toStringAsFixed(0)}%",
+        ),
+      ),
+    ],
+  );
+}),
+
+                  const SizedBox(height: 24),
+
+                  ///  RECENT ACTIVITY
+                  Obx(() {
+                    final orders = ordersController.orders;
+
+                    if (orders.isEmpty) return const SizedBox();
+
+                    final recent = orders.reversed.take(5).toList();
+
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Recent Activity",
+                          style: GoogleFonts.poppins(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        ...recent.map((o) {
+                          return Container(
+                            margin: const EdgeInsets.only(bottom: 10),
+                            padding: const EdgeInsets.all(14),
+                            width: double.infinity,
+
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(16),
+                              color: Colors.white.withOpacity(0.05),
+                            ),
+
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                heroCard(
-                                  "Revenue",
-                                  "₹${controller.animatedRevenue.value.toStringAsFixed(0)}",
-                                  "+12%",
-                                  Colors.blue,
-                                  Icons.trending_up,
+                                Row(
+                                  children: [
+                                    Icon(
+                                      o.status == "pending"
+                                          ? Icons.timelapse
+                                          : Icons.check_circle,
+                                      color: o.status == "pending"
+                                          ? Colors.orange
+                                          : Colors.green,
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Expanded(
+                                      child: Text(
+                                        "Order #${o.id}",
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ),
+                                    Text(
+                                      "${o.date.day}/${o.date.month}",
+                                      style: TextStyle(
+                                        color: Colors.white.withOpacity(0.4),
+                                        fontSize: 11,
+                                      ),
+                                    ),
+                                  ],
                                 ),
 
-                                heroCard(
-                                  "Sales",
-                                  controller.salesCount.value.toString(),
-                                  "+8%",
-                                  Colors.indigo,
-                                  Icons.shopping_cart,
-                                ),
+                                const SizedBox(height: 6),
 
-                                heroCard(
-                                  "Users",
-                                  controller.activeUsers.value.toString(),
-                                  "+5%",
-                                  Colors.purple,
-                                  Icons.people,
+                                Text(
+                                  "₹${_format(o.total)} • ${o.status}",
+                                  style: TextStyle(
+                                    color: Colors.white.withOpacity(0.6),
+                                    fontSize: 12,
+                                  ),
                                 ),
                               ],
                             ),
-                          ),
-
-                          const SizedBox(height: 10),
-
-                          /// DOTS
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: List.generate(3, (index) {
-                              return AnimatedBuilder(
-                                animation: pageController,
-                                builder: (context, child) {
-                                  double page = pageController.hasClients
-                                      ? pageController.page ?? 0
-                                      : 0;
-
-                                  final isActive = page.round() == index;
-
-                                  return AnimatedContainer(
-                                    duration: const Duration(milliseconds: 300),
-                                    margin: const EdgeInsets.symmetric(
-                                      horizontal: 4,
-                                    ),
-                                    width: isActive ? 16 : 6,
-                                    height: 6,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(10),
-                                      color: isActive
-                                          ? ColorResources.goldPrimary
-                                          : Colors.white.withValues(alpha: 0.3),
-                                    ),
-                                  );
-                                },
-                              );
-                            }),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    const SizedBox(height: 30),
-
-                    /// CHART
-                    sectionTitle("Revenue Overview"),
-                    const SizedBox(height: 16),
-                    revenueChart(controller),
-
-                    const SizedBox(height: 30),
-
-                    /// INSIGHTS
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        sectionTitle("Quick Insights"),
-                        const SizedBox(height: 4),
-                        Text(
-                          "Overview of current system status",
-                          style: TextStyle(
-                            color: Colors.white.withValues(alpha:0.5),
-                            fontSize: 12,
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 16),
-
-                    SizedBox(
-                      height: 120,
-                      child: ListView(
-                        scrollDirection: Axis.horizontal,
-                        children: controller.orderStatusCount.entries.map((e) {
-                          return insightCard(e.key, e.value);
+                          );
                         }).toList(),
-                      ),
-                    ),
-                  ],
-                ),
+                      ],
+                    );
+                  }),
+
+                  const SizedBox(height: 30),
+                ],
               ),
-            );
-          }),
-        ),
+            ),
+          );
+        }),
       ),
     );
   }
 
-  /// HERO CARD (unchanged)
-  Widget heroCard(
-    String title,
-    String value,
-    String change,
-    Color color,
-    IconData icon,
-  ) {
+  Widget _heroCard(String title, String value, Color color, IconData icon) {
     return Container(
       margin: const EdgeInsets.only(right: 12),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24),
         gradient: LinearGradient(
-          colors: [color.withValues(alpha: 0.35), color.withValues(alpha: 0.08)],
+          colors: [color.withOpacity(0.35), color.withOpacity(0.05)],
         ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Icon(icon, color: Colors.white),
-              Text(
-                change,
-                style: const TextStyle(
-                  color: Colors.green,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
+          Icon(icon, color: Colors.white),
           const Spacer(),
           Text(
             value,
             style: const TextStyle(
-              fontSize: 26,
-              fontWeight: FontWeight.bold,
               color: Colors.white,
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
             ),
           ),
-          const SizedBox(height: 6),
-          Text(title, style: TextStyle(color: Colors.white.withValues(alpha: 0.7))),
+          Text(title, style: TextStyle(color: Colors.white.withOpacity(0.7))),
         ],
       ),
     );
   }
 
-  Widget insightCard(String title, int value) {
-    final isHigh = value > 10;
+  Widget _chart(DashboardController c) {
+    final values = c.monthlyRevenue.values.toList();
+    if (values.isEmpty) return const SizedBox();
+
+    final max = values.reduce((a, b) => a > b ? a : b);
 
     return Container(
-      width: 180,
-      margin: const EdgeInsets.only(right: 12),
-      padding: const EdgeInsets.all(16),
+      height: 260,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        color: Colors.white.withValues(alpha: 0.05),
-        border: Border.all(
-          color: isHigh
-              ? Colors.red.withValues(alpha: 0.4)
-              : Colors.green.withValues(alpha: 0.4),
+        borderRadius: BorderRadius.circular(28),
+        gradient: const LinearGradient(
+          colors: [Color(0xFF1A1405), Color(0xFF0B0903)],
         ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(title, style: TextStyle(color: Colors.white.withValues(alpha: 0.7))),
-          const SizedBox(height: 10),
-          Text(
-            value.toString(),
-            style: const TextStyle(
-              fontSize: 26,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            isHigh ? "Needs attention" : "All good",
-            style: TextStyle(
-              fontSize: 12,
-              color: isHigh ? Colors.red : Colors.green,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget sectionTitle(String text) {
-    return Text(
-      text,
-      style: GoogleFonts.poppins(
-        fontSize: 18,
-        fontWeight: FontWeight.w600,
-        color: Colors.white,
-      ),
-    );
-  }
-
-  Widget revenueChart(DashboardController controller) {
-    final values = controller.monthlyRevenue.values.toList();
-
-    if (values.isEmpty) {
-      return const Center(child: Text("No Data"));
-    }
-
-    final maxValue = values.reduce((a, b) => a > b ? a : b);
-
-    return Container(
-      height: 220,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(24),
-        color: Colors.white.withValues(alpha: 0.04),
       ),
       child: LineChart(
         LineChartData(
           minY: 0,
-          maxY: maxValue * 1.3,
-          titlesData: FlTitlesData(show: false),
+          maxY: max * 1.3,
           borderData: FlBorderData(show: false),
+          titlesData: FlTitlesData(show: false),
+
           lineBarsData: [
+            /// 🔥 GOLD GLOW
+            LineChartBarData(
+              isCurved: true,
+              color: ColorResources.goldPrimary.withOpacity(0.25),
+              barWidth: 10,
+              dotData: FlDotData(show: false),
+              spots: values
+                  .asMap()
+                  .entries
+                  .map((e) => FlSpot(e.key.toDouble(), e.value))
+                  .toList(),
+            ),
+
+            /// 🔥 MAIN GOLD LINE
             LineChartBarData(
               isCurved: true,
               color: ColorResources.goldPrimary,
-              barWidth: 4,
+              barWidth: 3,
               dotData: FlDotData(show: true),
               belowBarData: BarAreaData(
                 show: true,
                 gradient: LinearGradient(
                   colors: [
-                    ColorResources.goldPrimary.withValues(alpha: 0.3),
+                    ColorResources.goldPrimary.withOpacity(0.3),
                     Colors.transparent,
                   ],
                 ),
@@ -381,5 +435,63 @@ class DashboardScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Widget _mini(String title, String value, {IconData? icon}) {
+    return Container(
+      margin: const EdgeInsets.only(right: 6),
+      padding: const EdgeInsets.all(14),
+
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        gradient: LinearGradient(
+          colors: [
+            Colors.white.withOpacity(0.06),
+            Colors.white.withOpacity(0.02),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        border: Border.all(color: Colors.white.withOpacity(0.08)),
+      ),
+
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          /// 🔥 ICON (OPTIONAL)
+          if (icon != null) ...[
+            Icon(icon, size: 18, color: ColorResources.goldPrimary),
+            const SizedBox(height: 10),
+          ],
+
+          /// VALUE (MAIN FOCUS)
+          Text(
+            value,
+            style: const TextStyle(
+              color: ColorResources.goldSecondary,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+
+          const SizedBox(height: 4),
+
+          /// LABEL
+          Text(
+            title,
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.6),
+              fontSize: 11,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _format(num v) {
+    if (v >= 1000000) return "${(v / 1000000).toStringAsFixed(1)}M";
+    if (v >= 1000) return "${(v / 1000).toStringAsFixed(1)}K";
+    return v.toStringAsFixed(0);
   }
 }

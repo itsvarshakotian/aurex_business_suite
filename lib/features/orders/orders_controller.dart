@@ -64,6 +64,26 @@ void updateStatusFilter(String status) {
   applyFilters();
 }
 
+Future<void> updateStatus(int orderId, String newStatus) async {
+  try {
+    log("🔄 Updating order $orderId → $newStatus");
+
+    ///  UPDATE LOCALLY FIRST (OPTIMISTIC UI)
+    final index =
+        orders.indexWhere((o) => o.id == orderId);
+
+    if (index != -1) {
+      orders[index].status = newStatus;
+      orders.refresh(); // VERY IMPORTANT
+    }
+
+    applyFilters();
+
+  } catch (e) {
+    log(" Status update failed: $e");
+  }
+}
+
   Future<void> fetchOrders({bool isLoadMore = false}) async {
     // CLEAR CACHE AFTER 30 MIN
 if (lastCacheTime != null &&
@@ -93,7 +113,6 @@ if (lastCacheTime != null &&
 
       if (!isLoadMore) {
   if (localOrders.isNotEmpty) {
-    /// 🔥 PRIORITY TO LOCAL DATA
     orders.assignAll(localOrders);
   } else {
     orders.assignAll(data);

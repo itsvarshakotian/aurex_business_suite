@@ -18,7 +18,6 @@ class OrderFilterBar extends StatelessWidget {
       {"label": "Delivered", "value": "delivered"},
     ];
 
-    /// 🔥 ONLY wrap SMALL PART in Obx
     return SizedBox(
       height: 44,
       child: Obx(() {
@@ -26,7 +25,7 @@ class OrderFilterBar extends StatelessWidget {
 
         return ListView.separated(
           scrollDirection: Axis.horizontal,
-          padding: const EdgeInsets.symmetric(horizontal: 24),
+          padding: const EdgeInsets.symmetric(horizontal: 5),
           itemCount: statuses.length,
           separatorBuilder: (_, __) => const SizedBox(width: 10),
           itemBuilder: (context, index) {

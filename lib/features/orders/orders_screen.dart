@@ -4,9 +4,9 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../Widgets/order_filter_bar.dart';
 import '../../app/routes/app_routes.dart';
-import '../../core/resources/color_resources.dart';
 import '../../core/services/auth_service.dart';
 import '../../core/utils/no_internet_widget.dart';
+import '../../core/resources/color_resources.dart';
 import '../../helper/helper.dart';
 import 'orders_controller.dart';
 import 'order_detail_screen.dart';
@@ -19,386 +19,322 @@ class OrdersScreen extends StatelessWidget {
     final controller = Get.find<OrdersController>();
     final auth = Get.find<AuthService>();
 
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
+    return Scaffold(
+      backgroundColor: const Color(0xFF0B1220),
 
-        /// ➕ FAB
-        floatingActionButton: auth.canCreateOrder
-            ? FloatingActionButton(
-                backgroundColor: Colors.white,
-                onPressed: () async {
-                  await Get.toNamed(AppRoutes.createOrder);
-                  controller.fetchOrders();
-                },
-                child: const Icon(Icons.add, color: Colors.black),
-              )
-            : null,
+      /// FAB
+      floatingActionButton: auth.canCreateOrder
+          ? GestureDetector(
+              onTap: () async {
+                await Get.toNamed(AppRoutes.createOrder);
+                await controller.fetchOrders();
+              },
+              child: Container(
+                height: 58,
+                width: 58,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white.withOpacity(0.08),
+                  border: Border.all(
+                    color: Colors.white.withOpacity(0.2),
+                  ),
+                ),
+                child: const Icon(Icons.add, color: Colors.white),
+              ),
+            )
+          : null,
 
-        body: Column(
-          children: [
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Color(0xFF0B1220),
+              Color(0xFF0F172A),
+              Color(0xFF020617),
+            ],
+          ),
+        ),
 
-            /// 🔥 HEADER
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Row(
+        child: SafeArea(
+          child: RefreshIndicator(
+            onRefresh: () async {
+              await controller.fetchOrders();
+            },
+
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 20,
+                vertical: 24,
+              ),
+
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+
+                  /// HEADER
                   Text(
                     "Orders",
                     style: GoogleFonts.poppins(
                       fontSize: 28,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w700,
                       color: Colors.white,
                     ),
                   ),
-                ],
-              ),
-            ),
 
-            const SizedBox(height: 12),
+                  const SizedBox(height: 24),
 
-            /// 🔥 MODERN FILTER (has its own Obx)
-            const OrderFilterBar(),
+                  ///  KPI STRIP
+                  Obx(() {
+                    final orders = controller.orders;
 
-            const SizedBox(height: 12),
+                    final pending =
+                        orders.where((o) => o.status == "pending").length;
 
-            /// 🔥 CONTENT AREA
-            Expanded(
-              child: Obx(() {
+                    final completed =
+                        orders.where((o) => o.status == "completed").length;
 
-                /// 🔄 LOADING
-                if (controller.isLoading.value &&
-                    controller.orders.isEmpty) {
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
-                }
+                    final cancelled =
+                        orders.where((o) => o.status == "cancelled").length;
 
-                /// 🌐 NO INTERNET
-                if (controller.errorMessage.value ==
-                    "No internet connection") {
-                  return NoInternetWidget(
-                    onRetry: controller.fetchOrders,
-                  );
-                }
+                    return Row(
+                      children: [
+                        Expanded(child: _kpi("Pending", pending)),
+                        const SizedBox(width: 10),
+                        Expanded(child: _kpi("Completed", completed)),
+                        const SizedBox(width: 10),
+                        Expanded(child: _kpi("Cancelled", cancelled)),
+                      ],
+                    );
+                  }),
 
-                /// 📭 EMPTY STATE
-                if (controller.filteredOrders.isEmpty) {
-                  return Center(
-                    child: Text(
-                      controller.selectedStatus.value == "all"
-                          ? "No orders found"
-                          : "No ${controller.selectedStatus.value} orders",
-                      style: const TextStyle(color: Colors.grey),
+                  const SizedBox(height: 20),
+
+                  /// FILTER 
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(18),
+                      color: Colors.white.withOpacity(0.05),
+                      border: Border.all(
+                        color: Colors.white.withOpacity(0.08),
+                      ),
                     ),
-                  );
-                }
+                    child: const OrderFilterBar(),
+                  ),
 
-                /// ✅ LIST
-                return RefreshIndicator(
-                  onRefresh: () => controller.fetchOrders(),
-                  child: ListView.builder(
-                    controller: controller.scrollController,
-                    padding: const EdgeInsets.all(24),
-                    itemCount:
-                        controller.filteredOrders.length + 1,
+                  const SizedBox(height: 20),
 
-                    itemBuilder: (context, index) {
+                  /// LIST
+                  Obx(() {
 
-                      /// 🔥 PAGINATION LOADER
-                      if (index ==
-                          controller.filteredOrders.length) {
-                        return Obx(() {
-                          return controller.isMoreLoading.value
-                              ? const Padding(
-                                  padding: EdgeInsets.all(16),
-                                  child: Center(
-                                    child:
-                                        CircularProgressIndicator(),
-                                  ),
-                                )
-                              : const SizedBox();
-                        });
-                      }
+                    /// NO INTERNET
+                    if (controller.errorMessage.value ==
+                        "No internet connection") {
+                      return SizedBox(
+                        height: 400,
+                        child: NoInternetWidget(
+                          onRetry: controller.fetchOrders,
+                        ),
+                      );
+                    }
 
-                      final order =
-                          controller.filteredOrders[index];
-
-                      return GestureDetector(
-                        onTap: () {
-                          Get.to(() =>
-                              CreateOrderScreen(order: order));
-                        },
-
-                        child: Container(
-                          key: ValueKey(order.id), // ✅ performance
-                          margin:
-                              const EdgeInsets.only(bottom: 16),
-                          padding: const EdgeInsets.all(18),
-
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF1A1D24),
-                            borderRadius:
-                                BorderRadius.circular(20),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black
-                                    .withOpacity(0.2),
-                                blurRadius: 10,
-                                offset: const Offset(0, 4),
+                    /// EMPTY STATE
+                    if (controller.filteredOrders.isEmpty) {
+                      return SizedBox(
+                        height: 400,
+                        child: Center(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.receipt_long,
+                                  size: 60,
+                                  color: Colors.white.withOpacity(0.3)),
+                              const SizedBox(height: 12),
+                              Text(
+                                "No orders available",
+                                style: TextStyle(
+                                  color: Colors.white.withOpacity(0.6),
+                                ),
                               ),
                             ],
                           ),
+                        ),
+                      );
+                    }
 
-                          child: Column(
-                            crossAxisAlignment:
-                                CrossAxisAlignment.start,
-                            children: [
+                    /// LIST VIEW
+                    return ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: controller.filteredOrders.length,
 
-                              /// 🔝 TOP ROW
-                              Row(
+                      itemBuilder: (context, index) {
+
+                        final order =
+                            controller.filteredOrders[index];
+
+                        final statusColor =
+                            SnackbarHelper.getStatusColor(order.status);
+
+                        return TweenAnimationBuilder(
+                          duration:
+                              Duration(milliseconds: 250 + index * 40),
+                          tween: Tween<double>(begin: 0, end: 1),
+
+                          builder: (context, value, child) {
+                            return Opacity(
+                              opacity: value,
+                              child: Transform.translate(
+                                offset: Offset(0, 12 * (1 - value)),
+                                child: child,
+                              ),
+                            );
+                          },
+
+                          child: GestureDetector(
+                            onTap: () {
+                              Get.to(() =>
+                                  CreateOrderScreen(order: order));
+                            },
+
+                            child: Container(
+                              margin: const EdgeInsets.only(bottom: 14),
+                              padding: const EdgeInsets.all(16),
+
+                              decoration: BoxDecoration(
+                                borderRadius:
+                                    BorderRadius.circular(18),
+
+                                /// MATCH DASHBOARD STYLE
+                                color: Colors.white.withOpacity(0.04),
+
+                                border: Border.all(
+                                  color: Colors.white.withOpacity(0.08),
+                                ),
+          
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: ColorResources.goldPrimary
+                                        .withOpacity(0.05),
+                                    blurRadius: 10,
+                                  )
+                                ],
+                              ),
+
+                              child: Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text(
-                                    "Order #${order.id}",
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 14,
-                                      fontWeight:
-                                          FontWeight.w600,
-                                      color: Colors.white,
-                                    ),
-                                  ),
 
-                                  Row(
+                                  /// LEFT
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
-                                      Container(
-                                        padding:
-                                            const EdgeInsets.symmetric(
-                                                horizontal: 10,
-                                                vertical: 5),
-                                        decoration: BoxDecoration(
-                                          color: SnackbarHelper
-                                              .getStatusColor(
-                                                  order.status)
-                                              .withOpacity(0.15),
-                                          borderRadius:
-                                              BorderRadius.circular(
-                                                  20),
-                                        ),
-                                        child: Text(
-                                          order.status
-                                              .toUpperCase(),
-                                          style:
-                                              GoogleFonts.poppins(
-                                            fontSize: 11,
-                                            fontWeight:
-                                                FontWeight.w600,
-                                            color: SnackbarHelper
-                                                .getStatusColor(
-                                                    order.status),
-                                          ),
+
+                                      Text(
+                                        "Order #${order.id}",
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w600,
                                         ),
                                       ),
 
-                                      const SizedBox(width: 8),
+                                      const SizedBox(height: 6),
 
-                                      const Icon(
-                                        Icons.arrow_forward_ios,
-                                        size: 16,
-                                        color: Colors.grey,
+                                      Text(
+                                        "${order.products.length} items",
+                                        style: TextStyle(
+                                          color: Colors.white
+                                              .withOpacity(0.6),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+
+                                  /// RIGHT
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.end,
+                                    children: [
+
+                                      Text(
+                                        "₹${order.total}",
+                                        style: const TextStyle(
+                                          color: Colors.greenAccent,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+
+                                      const SizedBox(height: 6),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 10, vertical: 4),
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                          color: statusColor
+                                              .withOpacity(0.15),
+                                        ),
+                                        child: Text(
+                                          order.status.toUpperCase(),
+                                          style: TextStyle(
+                                            color: statusColor,
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
                                       ),
                                     ],
                                   ),
                                 ],
                               ),
-
-                              const SizedBox(height: 12),
-
-                              /// 🛍 ITEMS
-                              Row(
-                                children: [
-                                  const Icon(Icons.shopping_bag,
-                                      size: 18,
-                                      color: Colors.grey),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    "${order.products.length} items",
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 13,
-                                      color: ColorResources
-                                          .textSecondary,
-                                    ),
-                                  ),
-                                ],
-                              ),
-
-                              const SizedBox(height: 10),
-
-                              /// 💰 TOTAL
-                              Row(
-                                children: [
-                                  const Icon(
-                                    Icons.currency_rupee,
-                                    size: 18,
-                                    color: Colors.green,
-                                  ),
-                                  const SizedBox(width: 6),
-                                  Text(
-                                    order.total
-                                        .toStringAsFixed(0),
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 16,
-                                      fontWeight:
-                                          FontWeight.w600,
-                                      color: Colors.greenAccent,
-                                    ),
-                                  ),
-                                ],
-                              ),
-
-                              const SizedBox(height: 12),
-
-                              Container(
-                                height: 1,
-                                color: Colors.white
-                                    .withOpacity(0.05),
-                              ),
-
-                              const SizedBox(height: 10),
-
-                              /// 🧾 PRODUCT PREVIEW
-                              Text(
-                                order.products.isNotEmpty
-                                    ? order.products.first.title
-                                    : "No items",
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: GoogleFonts.poppins(
-                                  fontSize: 12,
-                                  color: Colors.grey,
-                                ),
-                              ),
-
-                              const SizedBox(height: 10),
-
-                              /// 🔄 UPDATE STATUS
-                              if (auth.canCreateOrder &&
-                                  SnackbarHelper
-                                      .getNextStatuses(
-                                          order.status)
-                                      .isNotEmpty)
-                                Align(
-                                  alignment:
-                                      Alignment.centerRight,
-                                  child: GestureDetector(
-                                    onTap: () async {
-                                      showModalBottomSheet(
-                                        context: context,
-                                        backgroundColor:
-                                            const Color(
-                                                0xFF1A1D24),
-                                        shape:
-                                            const RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.vertical(
-                                            top:
-                                                Radius.circular(20),
-                                          ),
-                                        ),
-                                        builder: (context) {
-                                          return Padding(
-                                            padding:
-                                                const EdgeInsets
-                                                    .all(20),
-                                            child: Column(
-                                              mainAxisSize:
-                                                  MainAxisSize.min,
-                                              children: [
-
-                                                Text(
-                                                  "Select New Status",
-                                                  style: GoogleFonts.poppins(
-                                                    fontSize: 16,
-                                                    fontWeight:
-                                                        FontWeight.w600,
-                                                    color:
-                                                        Colors.white,
-                                                  ),
-                                                ),
-
-                                                const SizedBox(
-                                                    height: 20),
-
-                                                ...SnackbarHelper
-                                                    .getNextStatuses(
-                                                        order
-                                                            .status)
-                                                    .map(
-                                                        (status) {
-                                                  return ListTile(
-                                                    title: Text(
-                                                      status
-                                                              .capitalizeFirst ??
-                                                          status,
-                                                      style: GoogleFonts
-                                                          .poppins(
-                                                        color: Colors
-                                                            .white,
-                                                      ),
-                                                    ),
-                                                    onTap:
-                                                        () async {
-                                                      await controller
-                                                          .updateOrderStatus(
-                                                              order.id,
-                                                              status);
-                                                      Get.back();
-                                                    },
-                                                  );
-                                                }).toList(),
-                                              ],
-                                            ),
-                                          );
-                                        },
-                                      );
-                                    },
-                                    child: Container(
-                                      padding:
-                                          const EdgeInsets.symmetric(
-                                              horizontal: 12,
-                                              vertical: 6),
-                                      decoration: BoxDecoration(
-                                        color: Colors.blue
-                                            .withOpacity(0.15),
-                                        borderRadius:
-                                            BorderRadius.circular(
-                                                20),
-                                      ),
-                                      child: Text(
-                                        "Update Status",
-                                        style:
-                                            GoogleFonts.poppins(
-                                          fontSize: 12,
-                                          fontWeight:
-                                              FontWeight.w600,
-                                          color: Colors.blue,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                            ],
+                            ),
                           ),
-                        ),
-                      );
-                    },
-                  ),
-                );
-              }),
+                        );
+                      },
+                    );
+                  }),
+                ],
+              ),
             ),
-          ],
+          ),
         ),
+      ),
+    );
+  }
+
+  ///  KPI CARD 
+  Widget _kpi(String title, int value) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 14),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        color: Colors.white.withOpacity(0.05),
+        border: Border.all(
+          color: Colors.white.withOpacity(0.08),
+        ),
+      ),
+      child: Column(
+        children: [
+          Text(
+            value.toString(),
+            style: TextStyle(
+              color: ColorResources.goldPrimary,
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            title,
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.6),
+              fontSize: 11,
+            ),
+          ),
+        ],
       ),
     );
   }
