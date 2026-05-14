@@ -80,7 +80,7 @@ class DashboardScreen extends StatelessWidget {
                         },
                         child: CircleAvatar(
                           backgroundColor: Colors.white.withOpacity(0.1),
-                          child: const Icon(Icons.person, color: Colors.white),
+                          child: Icon(Icons.person, color: ColorResources.profileCircle(context)),
                         ),
                       ),
                     ],
@@ -131,7 +131,7 @@ class DashboardScreen extends StatelessWidget {
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(10),
                             color: active
-                                ? ColorResources.goldPrimary
+                                ? ColorResources.profileCircle(context)
                                 : Colors.white.withOpacity(0.2),
                           ),
                         );
@@ -161,7 +161,7 @@ class DashboardScreen extends StatelessWidget {
                   const SizedBox(height: 16),
 
                   /// GRAPH
-                  _chart(controller),
+                  _chart(context,controller),
 
                   const SizedBox(height: 20),
 
@@ -234,19 +234,19 @@ class DashboardScreen extends StatelessWidget {
     children: [
       Expanded(
         child: _mini(
-          "Avg",
+          context,"Avg",
           "₹${_format(controller.avgRevenue.value)}",
         ),
       ),
       Expanded(
         child: _mini(
-          "Growth",
+          context,"Growth",
           "${controller.growthPercent.value.toStringAsFixed(1)}%",
         ),
       ),
       Expanded(
         child: _mini(
-          "Conv",
+          context,"Conv",
           "${controller.conversionRate.value.toStringAsFixed(0)}%",
         ),
       ),
@@ -375,7 +375,7 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _chart(DashboardController c) {
+  Widget _chart(BuildContext  context, DashboardController c) {
     final values = c.monthlyRevenue.values.toList();
     if (values.isEmpty) return const SizedBox();
 
@@ -400,7 +400,7 @@ class DashboardScreen extends StatelessWidget {
             /// 🔥 GOLD GLOW
             LineChartBarData(
               isCurved: true,
-              color: ColorResources.goldPrimary.withOpacity(0.25),
+              color: ColorResources.profileCircle(context).withOpacity(0.25),
               barWidth: 10,
               dotData: FlDotData(show: false),
               spots: values
@@ -413,14 +413,14 @@ class DashboardScreen extends StatelessWidget {
             /// 🔥 MAIN GOLD LINE
             LineChartBarData(
               isCurved: true,
-              color: ColorResources.goldPrimary,
+              color: ColorResources.profileCircle(context),
               barWidth: 3,
               dotData: FlDotData(show: true),
               belowBarData: BarAreaData(
                 show: true,
                 gradient: LinearGradient(
                   colors: [
-                    ColorResources.goldPrimary.withOpacity(0.3),
+                    ColorResources.profileCircle(context).withOpacity(0.3),
                     Colors.transparent,
                   ],
                 ),
@@ -437,7 +437,7 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _mini(String title, String value, {IconData? icon}) {
+  Widget _mini(BuildContext context,String title, String value, {IconData? icon}) {
     return Container(
       margin: const EdgeInsets.only(right: 6),
       padding: const EdgeInsets.all(14),
@@ -467,8 +467,8 @@ class DashboardScreen extends StatelessWidget {
           /// VALUE (MAIN FOCUS)
           Text(
             value,
-            style: const TextStyle(
-              color: ColorResources.goldSecondary,
+            style: TextStyle(
+              color: ColorResources.profileCircle(context),
               fontSize: 16,
               fontWeight: FontWeight.bold,
             ),

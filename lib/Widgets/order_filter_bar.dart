@@ -1,3 +1,4 @@
+import 'package:aurex_business_suite/core/resources/color_resources.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -44,7 +45,7 @@ class OrderFilterBar extends StatelessWidget {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(30),
                   color: isSelected
-                      ? const Color(0xFF6C5CE7)
+                      ? ColorResources.profileCircle(context)
                       : Colors.white.withOpacity(0.05),
                 ),
 

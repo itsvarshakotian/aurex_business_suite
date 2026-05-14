@@ -69,6 +69,7 @@ class MainNavigationScreen extends StatelessWidget {
       final currentIndex = controller.currentIndex.value;
 
       return Scaffold(
+        extendBody: true,
         body: pages[currentIndex],
 
         /// FLOATING NAV
@@ -104,7 +105,7 @@ class MainNavigationScreen extends StatelessWidget {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: isActive
-                          ? ColorResources.goldPrimary
+                          ? ColorResources.profileCircle(context)
                           : Colors.transparent,
                     ),
 

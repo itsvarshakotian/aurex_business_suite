@@ -46,7 +46,7 @@ class LoginScreen extends StatelessWidget {
                         fontSize: 30,
                         fontWeight: FontWeight.w700,
                         letterSpacing: 2,
-                        color: ColorResources.goldPrimary,
+                        color: ColorResources.profileCircle(context),
                       ),
                     ),
 
@@ -89,7 +89,7 @@ class LoginScreen extends StatelessWidget {
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(14),
                           borderSide: BorderSide(
-                            color: ColorResources.goldPrimary,
+                            color: ColorResources.profileCircle(context),
                             width: 1.4,
                           ),
                         ),
@@ -130,7 +130,7 @@ class LoginScreen extends StatelessWidget {
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(14),
                             borderSide: BorderSide(
-                              color: ColorResources.goldPrimary,
+                              color: ColorResources.profileCircle(context),
                               width: 1.4,
                             ),
                           ),
@@ -171,7 +171,7 @@ class LoginScreen extends StatelessWidget {
 
                                 decoration: BoxDecoration(
                                   color: isSelected
-                                      ? ColorResources.goldPrimary
+                                      ? ColorResources.profileCircle(context)
                                       : Colors.white.withValues(alpha: 0.05),
                                   borderRadius: BorderRadius.circular(12),
                                 ),
@@ -202,7 +202,7 @@ class LoginScreen extends StatelessWidget {
                       height: 52,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: ColorResources.goldPrimary,
+                          backgroundColor: ColorResources.profileCircle(context),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(14),
                           ),

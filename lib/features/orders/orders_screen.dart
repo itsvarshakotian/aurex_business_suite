@@ -23,35 +23,34 @@ class OrdersScreen extends StatelessWidget {
       backgroundColor: const Color(0xFF0B1220),
 
       /// FAB
-      floatingActionButton: auth.canCreateOrder
-          ? GestureDetector(
-              onTap: () async {
-                await Get.toNamed(AppRoutes.createOrder);
-                await controller.fetchOrders();
-              },
-              child: Container(
-                height: 58,
-                width: 58,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white.withOpacity(0.08),
-                  border: Border.all(
-                    color: Colors.white.withOpacity(0.2),
-                  ),
-                ),
-                child: const Icon(Icons.add, color: Colors.white),
+     floatingActionButton: auth.canCreateOrder
+    ? Padding(
+        padding: const EdgeInsets.only(bottom: 90),
+        child: GestureDetector(
+          onTap: () async {
+            await Get.toNamed(AppRoutes.createOrder);
+            await controller.fetchOrders();
+          },
+          child: Container(
+            height: 58,
+            width: 58,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.white.withOpacity(0.08),
+              border: Border.all(
+                color: Colors.white.withOpacity(0.2),
               ),
-            )
-          : null,
+            ),
+            child: const Icon(Icons.add, color: Colors.white),
+          ),
+        ),
+      )
+    : null,
 
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [
-              Color(0xFF0B1220),
-              Color(0xFF0F172A),
-              Color(0xFF020617),
-            ],
+            colors: [Color(0xFF0B1220), Color(0xFF0F172A), Color(0xFF020617)],
           ),
         ),
 
@@ -63,15 +62,11 @@ class OrdersScreen extends StatelessWidget {
 
             child: SingleChildScrollView(
               physics: const BouncingScrollPhysics(),
-              padding: const EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 24,
-              ),
+              padding: const EdgeInsets.fromLTRB(20, 24, 20, 120),
 
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-
                   /// HEADER
                   Text(
                     "Orders",
@@ -88,37 +83,38 @@ class OrdersScreen extends StatelessWidget {
                   Obx(() {
                     final orders = controller.orders;
 
-                    final pending =
-                        orders.where((o) => o.status == "pending").length;
+                    final pending = orders
+                        .where((o) => o.status == "pending")
+                        .length;
 
-                    final completed =
-                        orders.where((o) => o.status == "completed").length;
+                    final completed = orders
+                        .where((o) => o.status == "completed")
+                        .length;
 
-                    final cancelled =
-                        orders.where((o) => o.status == "cancelled").length;
+                    final cancelled = orders
+                        .where((o) => o.status == "cancelled")
+                        .length;
 
                     return Row(
                       children: [
-                        Expanded(child: _kpi("Pending", pending)),
+                        Expanded(child: _kpi(context, "Pending", pending)),
                         const SizedBox(width: 10),
-                        Expanded(child: _kpi("Completed", completed)),
+                        Expanded(child: _kpi(context, "Completed", completed)),
                         const SizedBox(width: 10),
-                        Expanded(child: _kpi("Cancelled", cancelled)),
+                        Expanded(child: _kpi(context, "Cancelled", cancelled)),
                       ],
                     );
                   }),
 
                   const SizedBox(height: 20),
 
-                  /// FILTER 
+                  /// FILTER
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(18),
                       color: Colors.white.withOpacity(0.05),
-                      border: Border.all(
-                        color: Colors.white.withOpacity(0.08),
-                      ),
+                      border: Border.all(color: Colors.white.withOpacity(0.08)),
                     ),
                     child: const OrderFilterBar(),
                   ),
@@ -127,7 +123,6 @@ class OrdersScreen extends StatelessWidget {
 
                   /// LIST
                   Obx(() {
-
                     /// NO INTERNET
                     if (controller.errorMessage.value ==
                         "No internet connection") {
@@ -147,9 +142,11 @@ class OrdersScreen extends StatelessWidget {
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(Icons.receipt_long,
-                                  size: 60,
-                                  color: Colors.white.withOpacity(0.3)),
+                              Icon(
+                                Icons.receipt_long,
+                                size: 60,
+                                color: Colors.white.withOpacity(0.3),
+                              ),
                               const SizedBox(height: 12),
                               Text(
                                 "No orders available",
@@ -170,16 +167,14 @@ class OrdersScreen extends StatelessWidget {
                       itemCount: controller.filteredOrders.length,
 
                       itemBuilder: (context, index) {
+                        final order = controller.filteredOrders[index];
 
-                        final order =
-                            controller.filteredOrders[index];
-
-                        final statusColor =
-                            SnackbarHelper.getStatusColor(order.status);
+                        final statusColor = SnackbarHelper.getStatusColor(
+                          order.status,
+                        );
 
                         return TweenAnimationBuilder(
-                          duration:
-                              Duration(milliseconds: 250 + index * 40),
+                          duration: Duration(milliseconds: 250 + index * 40),
                           tween: Tween<double>(begin: 0, end: 1),
 
                           builder: (context, value, child) {
@@ -194,8 +189,7 @@ class OrdersScreen extends StatelessWidget {
 
                           child: GestureDetector(
                             onTap: () {
-                              Get.to(() =>
-                                  CreateOrderScreen(order: order));
+                              Get.to(() => CreateOrderScreen(order: order));
                             },
 
                             child: Container(
@@ -203,8 +197,7 @@ class OrdersScreen extends StatelessWidget {
                               padding: const EdgeInsets.all(16),
 
                               decoration: BoxDecoration(
-                                borderRadius:
-                                    BorderRadius.circular(18),
+                                borderRadius: BorderRadius.circular(18),
 
                                 /// MATCH DASHBOARD STYLE
                                 color: Colors.white.withOpacity(0.04),
@@ -212,13 +205,13 @@ class OrdersScreen extends StatelessWidget {
                                 border: Border.all(
                                   color: Colors.white.withOpacity(0.08),
                                 ),
-          
+
                                 boxShadow: [
                                   BoxShadow(
                                     color: ColorResources.goldPrimary
                                         .withOpacity(0.05),
                                     blurRadius: 10,
-                                  )
+                                  ),
                                 ],
                               ),
 
@@ -226,13 +219,11 @@ class OrdersScreen extends StatelessWidget {
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
-
                                   /// LEFT
                                   Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-
                                       Text(
                                         "Order #${order.id}",
                                         style: const TextStyle(
@@ -246,8 +237,7 @@ class OrdersScreen extends StatelessWidget {
                                       Text(
                                         "${order.products.length} items",
                                         style: TextStyle(
-                                          color: Colors.white
-                                              .withOpacity(0.6),
+                                          color: Colors.white.withOpacity(0.6),
                                         ),
                                       ),
                                     ],
@@ -255,10 +245,8 @@ class OrdersScreen extends StatelessWidget {
 
                                   /// RIGHT
                                   Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.end,
+                                    crossAxisAlignment: CrossAxisAlignment.end,
                                     children: [
-
                                       Text(
                                         "₹${order.total}",
                                         style: const TextStyle(
@@ -270,12 +258,14 @@ class OrdersScreen extends StatelessWidget {
                                       const SizedBox(height: 6),
                                       Container(
                                         padding: const EdgeInsets.symmetric(
-                                            horizontal: 10, vertical: 4),
+                                          horizontal: 10,
+                                          vertical: 4,
+                                        ),
                                         decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                          color: statusColor
-                                              .withOpacity(0.15),
+                                          borderRadius: BorderRadius.circular(
+                                            10,
+                                          ),
+                                          color: statusColor.withOpacity(0.15),
                                         ),
                                         child: Text(
                                           order.status.toUpperCase(),
@@ -305,23 +295,21 @@ class OrdersScreen extends StatelessWidget {
     );
   }
 
-  ///  KPI CARD 
-  Widget _kpi(String title, int value) {
+  ///  KPI CARD
+  Widget _kpi(BuildContext context, String title, int value) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 14),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         color: Colors.white.withOpacity(0.05),
-        border: Border.all(
-          color: Colors.white.withOpacity(0.08),
-        ),
+        border: Border.all(color: Colors.white.withOpacity(0.08)),
       ),
       child: Column(
         children: [
           Text(
             value.toString(),
             style: TextStyle(
-              color: ColorResources.goldPrimary,
+              color: ColorResources.profileCircle(context),
               fontWeight: FontWeight.bold,
               fontSize: 16,
             ),

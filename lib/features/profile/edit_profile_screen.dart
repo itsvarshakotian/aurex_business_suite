@@ -1,3 +1,4 @@
+import 'package:aurex_business_suite/core/resources/color_resources.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -75,8 +76,8 @@ class EditProfileScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(14),
                   gradient: LinearGradient(
                     colors: [
-                      Colors.blue.withOpacity(0.8),
-                      Colors.blue.withOpacity(0.5),
+                      ColorResources.profileCircle(context).withOpacity(0.8),
+                      ColorResources.profileCircle(context).withOpacity(0.8),
                     ],
                   ),
                 ),

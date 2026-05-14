@@ -130,9 +130,9 @@ class InventoryScreen extends StatelessWidget {
                       child: ListView(
                         scrollDirection: Axis.horizontal,
                         children: [
-                          _chip("All", 0, controller),
-                          _chip("Low", 1, controller),
-                          _chip("Critical", 2, controller),
+                          _chip(context,"All", 0, controller),
+                          _chip(context,"Low", 1, controller),
+                          _chip(context,"Critical", 2, controller),
                         ],
                       ),
                     ),
@@ -316,7 +316,7 @@ class InventoryScreen extends StatelessWidget {
   }
 
   /// 🔥 FILTER CHIP
-  Widget _chip(String text, int index, InventoryController controller) {
+  Widget _chip(BuildContext context,String text, int index, InventoryController controller) {
     return Obx(() {
       final isSelected = controller.selectedFilter.value == index;
 
@@ -328,7 +328,7 @@ class InventoryScreen extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(22),
             color: isSelected
-                ? ColorResources.goldPrimary
+                ? ColorResources.profileCircle(context)
                 : Colors.white.withOpacity(0.05),
           ),
           child: Text(

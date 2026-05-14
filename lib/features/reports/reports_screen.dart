@@ -78,11 +78,11 @@ class ReportsScreen extends StatelessWidget {
                               borderRadius:
                                   BorderRadius.circular(20),
                               color: selected
-                                  ? ColorResources.goldPrimary
+                                  ? ColorResources.profileCircle(context)
                                   : Colors.white.withOpacity(0.05),
                               border: Border.all(
                                 color: selected
-                                    ? ColorResources.goldPrimary
+                                    ? ColorResources.profileCircle(context)
                                     : Colors.white.withOpacity(0.1),
                               ),
                             ),
@@ -108,7 +108,7 @@ class ReportsScreen extends StatelessWidget {
                     children: [
                       Expanded(
                         child: _card(
-                          "Revenue",
+                          context,"Revenue",
                           controller.totalRevenue,
                           prefix: "₹",
                           icon: Icons.trending_up,
@@ -117,7 +117,7 @@ class ReportsScreen extends StatelessWidget {
                       const SizedBox(width: 10),
                       Expanded(
                         child: _card(
-                          "Orders",
+                          context,"Orders",
                           controller.totalOrders,
                           icon: Icons.shopping_cart,
                         ),
@@ -128,7 +128,7 @@ class ReportsScreen extends StatelessWidget {
                   const SizedBox(height: 12),
 
                   _card(
-                    "Products Sold",
+                    context,"Products Sold",
                     controller.totalProducts,
                     icon: Icons.inventory,
                   ),
@@ -201,7 +201,7 @@ class ReportsScreen extends StatelessWidget {
                             LineChartBarData(
                               isCurved: true,
                               color:
-                                  ColorResources.goldPrimary,
+                                  ColorResources.profileCircle(context),
                               barWidth: 4,
                               dotData:
                                   FlDotData(show: true),
@@ -209,7 +209,7 @@ class ReportsScreen extends StatelessWidget {
                                 show: true,
                                 gradient: LinearGradient(
                                   colors: [
-                                    ColorResources.goldPrimary
+                                    ColorResources.profileCircle(context)
                                         .withOpacity(0.3),
                                     Colors.transparent,
                                   ],
@@ -250,7 +250,7 @@ class ReportsScreen extends StatelessWidget {
                       children: [
                         Expanded(
                           child: _customInsight(
-                            "Top Day",
+                           context, "Top Day",
                             "₹${_format(maxValue)}",
                             Icons.star,
                           ),
@@ -258,7 +258,7 @@ class ReportsScreen extends StatelessWidget {
                         const SizedBox(width: 10),
                         Expanded(
                           child: _customInsight(
-                            "Avg Order",
+                            context,"Avg Order",
                             "₹${_format(avgOrder)}",
                             Icons.analytics,
                           ),
@@ -266,7 +266,7 @@ class ReportsScreen extends StatelessWidget {
                         const SizedBox(width: 10),
                         Expanded(
                           child: _customInsight(
-                            "Best Revenue",
+                            context,"Best Revenue",
                             "₹${_format(maxValue)}",
                             Icons.trending_up,
                           ),
@@ -340,7 +340,7 @@ class ReportsScreen extends StatelessWidget {
                                           BoxShape.circle,
                                       color:
                                           ColorResources
-                                              .goldPrimary
+                                              .profileCircle(context)
                                               .withOpacity(
                                                   0.2),
                                     ),
@@ -348,7 +348,7 @@ class ReportsScreen extends StatelessWidget {
                                       Icons.receipt_long,
                                       size: 16,
                                       color: ColorResources
-                                          .goldPrimary,
+                                          .profileCircle(context),
                                     ),
                                   ),
 
@@ -391,7 +391,7 @@ class ReportsScreen extends StatelessWidget {
   }
 
   /// KPI CARD
-  Widget _card(String title, Rx value,
+  Widget _card(BuildContext context,String title, Rx value,
       {String prefix = "", IconData? icon}) {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -425,14 +425,14 @@ class ReportsScreen extends StatelessWidget {
               ),
               if (icon != null)
                 Icon(icon,
-                    color: ColorResources.goldPrimary),
+                    color: ColorResources.profileCircle(context)),
             ],
           )),
     );
   }
 
   /// INSIGHT
-  Widget _customInsight(
+  Widget _customInsight(BuildContext context,
       String title, String value, IconData icon) {
     return Container(
       padding: const EdgeInsets.all(14),
@@ -448,7 +448,7 @@ class ReportsScreen extends StatelessWidget {
             CrossAxisAlignment.start,
         children: [
           Icon(icon,
-              color: ColorResources.goldPrimary, size: 18),
+              color: ColorResources.profileCircle(context), size: 18),
           const SizedBox(height: 6),
           Text(title,
               style: TextStyle(
